@@ -129,13 +129,13 @@ class ApiCall(object):
     # path
     #
 
-    @property
-    def path(self):
-        return self._path
+#    @property
+#    def path(self):
+#        return self._path
 
-    @path.setter
-    def path(self, value):
-        self._path = value
+#    @path.setter
+#    def path(self, value):
+#        self._path = value
 
     #
     # url_parameters
@@ -182,13 +182,13 @@ class ApiCall(object):
         """
         return requests.put(self._url, data=self._data, headers=self._headers, auth=(self._email, self._api_token))
 
-    def good_response(self, status_code):
+    def _good_response(self, status_code):
         """
         Determines what status codes represent a good response from an API call.
         """
         return status_code == requests.codes.ok
 
-    def form_url(self):
+    def _form_url(self):
         return "{0}://{1}/{2}{3}".format(self._scheme, self._api_host, self._path, self._get_url_parameters())
 
     def _call_api(self):
@@ -196,7 +196,7 @@ class ApiCall(object):
         Make an API call to get the metric definition
         """
 
-        self._url = self.form_url()
+        self._url = self._form_url()
         if self._headers is not None:
             logging.debug(self._headers)
         if self._data is not None:
@@ -206,7 +206,7 @@ class ApiCall(object):
 
         result = self._methods[self._method]()
 
-        if not self.good_response(result.status_code):
+        if not self._good_response(result.status_code):
             logging.error(self._url)
             logging.error(self._method)
             logging.error(self._headers)
@@ -215,7 +215,7 @@ class ApiCall(object):
             logging.error(result)
         self._api_result = result
 
-    def api_call(self, handle_results=_handle_api_results):
+    def _api_call(self, handle_results=_handle_api_results):
         self._call_api()
         return handle_results(self._api_result)
 
