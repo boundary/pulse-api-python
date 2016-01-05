@@ -17,13 +17,13 @@
 
 from unittest import TestCase
 from datetime import datetime
-import tspapi
+from tspapi import API
 
 
 class MeasurementTest(TestCase):
 
     def setUp(self):
-        self.api = tspapi.API()
+        self.api = API()
 
     def test_measurement_create(self):
         metric_id = 'CPU'

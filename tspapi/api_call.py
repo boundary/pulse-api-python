@@ -28,7 +28,7 @@ def _handle_api_results(api_result):
         return result
 
 
-class ApiCall(object):
+class _ApiCall(object):
     def __init__(self, api_host=None, email=None, api_token=None):
         """
         :param api_host: api end point host
@@ -75,79 +75,6 @@ class ApiCall(object):
 
     def _get_environment(self):
         pass
-
-    #
-    # data
-    #
-
-    @property
-    def data(self):
-        """
-        Value of the HTTP payload
-        :return:
-        """
-        return self._data
-
-    @data.setter
-    def data(self, data):
-        self._data = data
-
-    #
-    # headers
-    #
-
-    @property
-    def headers(self):
-        return self._headers
-
-    @headers.setter
-    def headers(self, headers):
-        self._headers = headers
-    #
-    # method
-    #
-
-    @property
-    def method(self):
-        """
-        """
-        return self._method
-
-    @method.setter
-    def method(self, value):
-        """
-        Before assigning the value validate that is in one of the
-        HTTP methods we implement
-        """
-        keys = self._methods.keys()
-        if value not in keys:
-            raise AttributeError("Method value not in " + str(keys))
-        else:
-            self._method = value
-
-    #
-    # path
-    #
-
-#    @property
-#    def path(self):
-#        return self._path
-
-#    @path.setter
-#    def path(self, value):
-#        self._path = value
-
-    #
-    # url_parameters
-    #
-
-    @property
-    def url_parameters(self):
-        return self._url_parameters
-
-    @url_parameters.setter
-    def url_parameters(self, url_parameters):
-        self._url_parameters = url_parameters
 
     def _get_url_parameters(self):
         """

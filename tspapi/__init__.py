@@ -1,2 +1,3 @@
-from .api_call import ApiCall
-from .api import API
+from __future__ import absolute_import
+from tspapi.api_call import _ApiCall
+from tspapi.api import API

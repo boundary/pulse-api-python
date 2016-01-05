@@ -17,14 +17,14 @@
 import os
 import json
 import logging
-from tspapi import ApiCall
+from tspapi.api_call import _ApiCall
 
 
-class API(ApiCall):
+class API(_ApiCall):
 
     def __init__(self, api_host='premium-api.boundary.com', email=None, api_token=None):
         self._get_environment()
-        ApiCall.__init__(self, api_host=api_host, email=email, api_token=api_token)
+        _ApiCall.__init__(self, api_host=api_host, email=email, api_token=api_token)
 
     def _get_environment(self):
         """
@@ -40,16 +40,26 @@ class API(ApiCall):
             self._api_host = 'premium-api.boundary.com'
 
     def measurement_create(self, metric, value, source=None, timestamp=None):
-        self.method = 'POST'
+        """
+        Creates a new measurement in TrueSight Pulse instance.
+
+        Identifies which `metric` to use to add a measurement.
+
+        :param value: Value of the measurement
+        :param source: Origin of the measurement
+        :param timestamp: Time of the occurrence of the measurement
+        :return: None
+        """
+        self._method = 'POST'
         payload = {}
         payload['metric'] = metric
         payload['measure'] = value
         payload['source'] = source
         payload['timestamp'] = int(timestamp)
-        self.data = json.dumps(payload, sort_keys=True)
-        self.headers = {'Content-Type': 'application/json', "Accept": "application/json"}
-        self.path = "v1/measurements"
-        self.api_call()
+        self._data = json.dumps(payload, sort_keys=True)
+        self._headers = {'Content-Type': 'application/json', "Accept": "application/json"}
+        self._path = "v1/measurements"
+        self._api_call()
 
     def create_event(self):
         pass
