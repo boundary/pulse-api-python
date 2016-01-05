@@ -2,6 +2,10 @@
 README.txt
 MANIFEST
 
+# IDE
+.idea
+*.iml
+
 # Virtual env
 python
 # Byte-compiled / optimized / DLL files
