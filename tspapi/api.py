@@ -1,5 +1,5 @@
 #
-# Copyright 2015 BMC Software, Inc.
+# Copyright 2016 BMC Software, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ import os
 import json
 import logging
 from tspapi.api_call import _ApiCall
+import tspapi.measurement as measurement
 
 
 class API(_ApiCall):
@@ -30,12 +31,12 @@ class API(_ApiCall):
         """
         Gets the configuration stored in environment variables
         """
-        if 'BOUNDARY_EMAIL' in os.environ:
-            self._email = os.environ['BOUNDARY_EMAIL']
-        if 'BOUNDARY_API_TOKEN' in os.environ:
-            self._api_token = os.environ['BOUNDARY_API_TOKEN']
-        if 'BOUNDARY_API_HOST' in os.environ:
-            self._api_host = os.environ['BOUNDARY_API_HOST']
+        if 'TRUESIGHT_EMAIL' in os.environ:
+            self._email = os.environ['TRUESIGHT_EMAIL']
+        if 'TRUESIGHT_API_TOKEN' in os.environ:
+            self._api_token = os.environ['TRUESIGHT_API_TOKEN']
+        if 'TRUESIGHT_API_HOST' in os.environ:
+            self._api_host = os.environ['TRUESIGHT_API_HOST']
         else:
             self._api_host = 'premium-api.boundary.com'
 
@@ -57,6 +58,16 @@ class API(_ApiCall):
         payload['source'] = source
         payload['timestamp'] = int(timestamp)
         self._data = json.dumps(payload, sort_keys=True)
+        self._headers = {'Content-Type': 'application/json', "Accept": "application/json"}
+        self._path = "v1/measurements"
+        self._api_call()
+
+    def measurement_create_batch(self, measurements):
+        """
+        :return: None
+        """
+        self._method = 'POST'
+        self._data = json.dumps(measurements, default=measurement.serialize_instance)
         self._headers = {'Content-Type': 'application/json', "Accept": "application/json"}
         self._path = "v1/measurements"
         self._api_call()
