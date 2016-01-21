@@ -28,7 +28,7 @@ def _handle_api_results(api_result):
         return result
 
 
-class ApiCall(object):
+class _ApiCall(object):
     def __init__(self, api_host=None, email=None, api_token=None):
         """
         :param api_host: api end point host
@@ -76,79 +76,6 @@ class ApiCall(object):
     def _get_environment(self):
         pass
 
-    #
-    # data
-    #
-
-    @property
-    def data(self):
-        """
-        Value of the HTTP payload
-        :return:
-        """
-        return self._data
-
-    @data.setter
-    def data(self, data):
-        self._data = data
-
-    #
-    # headers
-    #
-
-    @property
-    def headers(self):
-        return self._headers
-
-    @headers.setter
-    def headers(self, headers):
-        self._headers = headers
-    #
-    # method
-    #
-
-    @property
-    def method(self):
-        """
-        """
-        return self._method
-
-    @method.setter
-    def method(self, value):
-        """
-        Before assigning the value validate that is in one of the
-        HTTP methods we implement
-        """
-        keys = self._methods.keys()
-        if value not in keys:
-            raise AttributeError("Method value not in " + str(keys))
-        else:
-            self._method = value
-
-    #
-    # path
-    #
-
-    @property
-    def path(self):
-        return self._path
-
-    @path.setter
-    def path(self, value):
-        self._path = value
-
-    #
-    # url_parameters
-    #
-
-    @property
-    def url_parameters(self):
-        return self._url_parameters
-
-    @url_parameters.setter
-    def url_parameters(self, url_parameters):
-        self._url_parameters = url_parameters
-
     def _get_url_parameters(self):
         """
         Encode URL parameters
@@ -182,13 +109,13 @@ class ApiCall(object):
         """
         return requests.put(self._url, data=self._data, headers=self._headers, auth=(self._email, self._api_token))
 
-    def good_response(self, status_code):
+    def _good_response(self, status_code):
         """
         Determines what status codes represent a good response from an API call.
         """
         return status_code == requests.codes.ok
 
-    def form_url(self):
+    def _form_url(self):
         return "{0}://{1}/{2}{3}".format(self._scheme, self._api_host, self._path, self._get_url_parameters())
 
     def _call_api(self):
@@ -196,7 +123,7 @@ class ApiCall(object):
         Make an API call to get the metric definition
         """
 
-        self._url = self.form_url()
+        self._url = self._form_url()
         if self._headers is not None:
             logging.debug(self._headers)
         if self._data is not None:
@@ -206,7 +133,7 @@ class ApiCall(object):
 
         result = self._methods[self._method]()
 
-        if not self.good_response(result.status_code):
+        if not self._good_response(result.status_code):
             logging.error(self._url)
             logging.error(self._method)
             logging.error(self._headers)
@@ -215,7 +142,7 @@ class ApiCall(object):
             logging.error(result)
         self._api_result = result
 
-    def api_call(self, handle_results=_handle_api_results):
+    def _api_call(self, handle_results=_handle_api_results):
         self._call_api()
         return handle_results(self._api_result)
 

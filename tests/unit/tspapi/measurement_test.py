@@ -17,13 +17,37 @@
 
 from unittest import TestCase
 from datetime import datetime
-import tspapi
+from tspapi import API
+from tspapi import Measurement
+from tspapi.measurement import serialize_instance
+import json
+from datetime import datetime
 
 
 class MeasurementTest(TestCase):
 
     def setUp(self):
-        self.api = tspapi.API()
+        self.api = API()
+
+    def test_measurement_constructor(self):
+        metric = 'CPU'
+        value = 0.5
+        source = 'foobar'
+        timestamp=int(datetime.now().strftime('%s'))
+        measurement = Measurement(metric=metric, value=value, source=source, timestamp=timestamp)
+
+        self.assertEqual(metric, measurement.metric)
+        self.assertEqual(value, measurement.value)
+        self.assertEqual(source, measurement.source)
+        self.assertEqual(timestamp, measurement.timestamp)
+
+    def test_measurement_defaults(self):
+        measurement = Measurement()
+
+        self.assertIsNone(measurement.metric)
+        self.assertIsNone(measurement.value)
+        self.assertIsNone(measurement.source)
+        self.assertIsNone(measurement.value)
 
     def test_measurement_create(self):
         metric_id = 'CPU'
@@ -31,4 +55,13 @@ class MeasurementTest(TestCase):
         source = 'API_TEST_SOURCE'
         timestamp = datetime.now().strftime('%s')
         self.api.measurement_create(metric_id, value, source, timestamp)
+
+    def test_measurement_create_batch(self):
+        measurements = []
+        timestamp = int(datetime.now().strftime('%s'))
+        measurements.append(Measurement(metric='CPU', value=0.5, source='red', timestamp=timestamp))
+        measurements.append(Measurement(metric='CPU', value=0.6, source='green', timestamp=timestamp))
+        measurements.append(Measurement(metric='CPU', value=0.7, source='blue', timestamp=timestamp))
+        self.api.measurement_create_batch(measurements)
+
 

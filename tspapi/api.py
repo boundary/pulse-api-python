@@ -1,5 +1,5 @@
 #
-# Copyright 2015 BMC Software, Inc.
+# Copyright 2016 BMC Software, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,39 +17,60 @@
 import os
 import json
 import logging
-from tspapi import ApiCall
+from tspapi.api_call import _ApiCall
+import tspapi.measurement as measurement
 
 
-class API(ApiCall):
+class API(_ApiCall):
 
     def __init__(self, api_host='premium-api.boundary.com', email=None, api_token=None):
         self._get_environment()
-        ApiCall.__init__(self, api_host=api_host, email=email, api_token=api_token)
+        _ApiCall.__init__(self, api_host=api_host, email=email, api_token=api_token)
 
     def _get_environment(self):
         """
         Gets the configuration stored in environment variables
         """
-        if 'BOUNDARY_EMAIL' in os.environ:
-            self._email = os.environ['BOUNDARY_EMAIL']
-        if 'BOUNDARY_API_TOKEN' in os.environ:
-            self._api_token = os.environ['BOUNDARY_API_TOKEN']
-        if 'BOUNDARY_API_HOST' in os.environ:
-            self._api_host = os.environ['BOUNDARY_API_HOST']
+        if 'TRUESIGHT_EMAIL' in os.environ:
+            self._email = os.environ['TRUESIGHT_EMAIL']
+        if 'TRUESIGHT_API_TOKEN' in os.environ:
+            self._api_token = os.environ['TRUESIGHT_API_TOKEN']
+        if 'TRUESIGHT_API_HOST' in os.environ:
+            self._api_host = os.environ['TRUESIGHT_API_HOST']
         else:
             self._api_host = 'premium-api.boundary.com'
 
     def measurement_create(self, metric, value, source=None, timestamp=None):
-        self.method = 'POST'
+        """
+        Creates a new measurement in TrueSight Pulse instance.
+
+        Identifies which `metric` to use to add a measurement.
+
+        :param value: Value of the measurement
+        :param source: Origin of the measurement
+        :param timestamp: Time of the occurrence of the measurement
+        :return: None
+        """
+        self._method = 'POST'
         payload = {}
         payload['metric'] = metric
         payload['measure'] = value
         payload['source'] = source
         payload['timestamp'] = int(timestamp)
-        self.data = json.dumps(payload, sort_keys=True)
-        self.headers = {'Content-Type': 'application/json', "Accept": "application/json"}
-        self.path = "v1/measurements"
-        self.api_call()
+        self._data = json.dumps(payload, sort_keys=True)
+        self._headers = {'Content-Type': 'application/json', "Accept": "application/json"}
+        self._path = "v1/measurements"
+        self._api_call()
+
+    def measurement_create_batch(self, measurements):
+        """
+        :return: None
+        """
+        self._method = 'POST'
+        self._data = json.dumps(measurements, default=measurement.serialize_instance)
+        self._headers = {'Content-Type': 'application/json', "Accept": "application/json"}
+        self._path = "v1/measurements"
+        self._api_call()
 
     def create_event(self):
         pass
