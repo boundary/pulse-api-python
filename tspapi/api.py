@@ -23,7 +23,7 @@ import tspapi.measurement as measurement
 
 class API(_ApiCall):
 
-    def __init__(self, api_host='premium-api.boundary.com', email=None, api_token=None):
+    def __init__(self, api_host=None, email=None, api_token=None):
         self._get_environment()
         _ApiCall.__init__(self, api_host=api_host, email=email, api_token=api_token)
 
@@ -64,6 +64,7 @@ class API(_ApiCall):
 
     def measurement_create_batch(self, measurements):
         """
+        :param measurements: List of measurements
         :return: None
         """
         self._method = 'POST'
@@ -74,3 +75,15 @@ class API(_ApiCall):
 
     def create_event(self):
         pass
+
+    def hostgroup_create(self, name, sources=[]):
+
+        payload = {}
+        payload['name'] = name
+        payload['hostnames'] = sources
+
+        self._method = 'POST'
+        self._data = json.dumps(payload)
+        self._headers = {'Content-Type': 'application/json', "Accept": "application/json"}
+        self._path = "v1/hostgroups"
+        self._api_call()
