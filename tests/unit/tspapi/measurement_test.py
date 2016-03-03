@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright 2015 BMC Software, Inc.
+# Copyright 2016 BMC Software, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,11 +16,8 @@
 #
 
 from unittest import TestCase
-from datetime import datetime
 from tspapi import API
 from tspapi import Measurement
-from tspapi.measurement import serialize_instance
-import json
 from datetime import datetime
 
 
@@ -63,5 +60,3 @@ class MeasurementTest(TestCase):
         measurements.append(Measurement(metric='CPU', value=0.6, source='green', timestamp=timestamp))
         measurements.append(Measurement(metric='CPU', value=0.7, source='blue', timestamp=timestamp))
         self.api.measurement_create_batch(measurements)
-
-
