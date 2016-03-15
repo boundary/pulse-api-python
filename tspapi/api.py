@@ -31,14 +31,14 @@ class API(_ApiCall):
         """
         Gets the configuration stored in environment variables
         """
-        if 'TRUESIGHT_EMAIL' in os.environ:
-            self._email = os.environ['TRUESIGHT_EMAIL']
-        if 'TRUESIGHT_API_TOKEN' in os.environ:
-            self._api_token = os.environ['TRUESIGHT_API_TOKEN']
-        if 'TRUESIGHT_API_HOST' in os.environ:
-            self._api_host = os.environ['TRUESIGHT_API_HOST']
+        if 'TSP_EMAIL' in os.environ:
+            self._email = os.environ['TSP_EMAIL']
+        if 'TSP_API_TOKEN' in os.environ:
+            self._api_token = os.environ['TSP_API_TOKEN']
+        if 'TSP_API_HOST' in os.environ:
+            self._api_host = os.environ['TSP_API_HOST']
         else:
-            self._api_host = 'premium-api.boundary.com'
+            self._api_host = 'api.truesight.bmc.com'
 
     def measurement_create(self, metric, value, source=None, timestamp=None):
         """
@@ -54,9 +54,11 @@ class API(_ApiCall):
         self._method = 'POST'
         payload = {}
         payload['metric'] = metric
-        payload['measure'] = value
-        payload['source'] = source
-        payload['timestamp'] = int(timestamp)
+        payload['measure'] = float(value)
+        if source is not None:
+            payload['source'] = source
+        if timestamp is not None:
+            payload['timestamp'] = int(timestamp)
         self._data = json.dumps(payload, sort_keys=True)
         self._headers = {'Content-Type': 'application/json', "Accept": "application/json"}
         self._path = "v1/measurements"

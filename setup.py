@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name='tspapi',
-    version='0.1.2',
+    version='0.2.1',
     url="https://github.com/boundary/pulse-api-python",
     author='David Gwartney',
     author_email='david_gwartney@bmc.com',
