@@ -18,7 +18,9 @@ import json
 import requests
 import urllib
 import logging
-import exception
+import sys
+if sys.version_info.major < 3:
+    import exception
 
 
 def _handle_api_results(api_result):
@@ -63,19 +65,6 @@ class _ApiCall(object):
         self._url_parameters = None
 
         self._api_result = None
-
-        # Set the api_host, email, api token set by environment
-        # variables then override with those passed in
-        self._get_environment()
-        if api_host is not None:
-            self._api_host = api_host
-        if email is not None:
-            self._email = email
-        if api_token is not None:
-            self._api_token = api_token
-
-    def _get_environment(self):
-        pass
 
     def _get_url_parameters(self):
         """

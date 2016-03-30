@@ -24,28 +24,29 @@ import tspapi.measurement as measurement
 class API(_ApiCall):
 
     def __init__(self, api_host=None, email=None, api_token=None):
-        self._get_environment()
+        (api_host, email, api_token) = self._get_environment(api_host, email, api_token)
         _ApiCall.__init__(self, api_host=api_host, email=email, api_token=api_token)
 
-    def _get_environment(self):
+    def _get_environment(self, api_host, email, api_token):
         """
         Gets the configuration stored in environment variables
         """
-        if 'TSP_EMAIL' in os.environ:
-            self._email = os.environ['TSP_EMAIL']
-        if 'TSP_API_TOKEN' in os.environ:
-            self._api_token = os.environ['TSP_API_TOKEN']
-        if 'TSP_API_HOST' in os.environ:
-            self._api_host = os.environ['TSP_API_HOST']
+        if email is None and 'TSP_EMAIL' in os.environ:
+            email = os.environ['TSP_EMAIL']
+        if api_token is None and 'TSP_API_TOKEN' in os.environ:
+            api_token = os.environ['TSP_API_TOKEN']
+        if api_host is None and 'TSP_API_HOST' in os.environ:
+            api_host = os.environ['TSP_API_HOST']
         else:
-            self._api_host = 'api.truesight.bmc.com'
+            api_host = 'api.truesight.bmc.com'
 
-    def measurement_create(self, metric, value, source=None, timestamp=None):
+        return api_host, email, api_token
+
+    def measurement_create(self, metric, value, source=None, timestamp=None, properties=None):
         """
         Creates a new measurement in TrueSight Pulse instance.
 
-        Identifies which `metric` to use to add a measurement.
-
+        :param metric: Identifies the metric to use to add a measurement
         :param value: Value of the measurement
         :param source: Origin of the measurement
         :param timestamp: Time of the occurrence of the measurement
@@ -59,6 +60,8 @@ class API(_ApiCall):
             payload['source'] = source
         if timestamp is not None:
             payload['timestamp'] = int(timestamp)
+        if properties is not None:
+            payload['metadata'] = properties
         self._data = json.dumps(payload, sort_keys=True)
         self._headers = {'Content-Type': 'application/json', "Accept": "application/json"}
         self._path = "v1/measurements"
@@ -75,7 +78,25 @@ class API(_ApiCall):
         self._path = "v1/measurements"
         self._api_call()
 
-    def create_event(self):
+    def metric_create(self):
+        pass
+
+    def metric_delete(self):
+        pass
+
+    def metric_list(self):
+        pass
+
+    def metric_update(self):
+        pass
+
+    def event_create(self):
+        pass
+
+    def event_get(self):
+        pass
+
+    def event_list(self):
         pass
 
     def hostgroup_create(self, name, sources=[]):

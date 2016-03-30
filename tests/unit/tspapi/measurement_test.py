@@ -30,13 +30,16 @@ class MeasurementTest(TestCase):
         metric = 'CPU'
         value = 0.5
         source = 'foobar'
-        timestamp=int(datetime.now().strftime('%s'))
-        measurement = Measurement(metric=metric, value=value, source=source, timestamp=timestamp)
+        timestamp = int(datetime.now().strftime('%s'))
+        properties = {"app_id": "red", "source_type": "blue", "origin": "green"}
+        measurement = Measurement(metric=metric, value=value, source=source,
+                                  timestamp=timestamp, properties=properties)
 
         self.assertEqual(metric, measurement.metric)
         self.assertEqual(value, measurement.value)
         self.assertEqual(source, measurement.source)
         self.assertEqual(timestamp, measurement.timestamp)
+        self.assertEqual(properties, measurement.properties)
 
     def test_measurement_defaults(self):
         measurement = Measurement()
@@ -44,7 +47,8 @@ class MeasurementTest(TestCase):
         self.assertIsNone(measurement.metric)
         self.assertIsNone(measurement.value)
         self.assertIsNone(measurement.source)
-        self.assertIsNone(measurement.value)
+        self.assertIsNone(measurement.timestamp)
+        self.assertIsNone(measurement.properties)
 
     def test_measurement_create(self):
         metric_id = 'CPU'
@@ -53,10 +57,31 @@ class MeasurementTest(TestCase):
         timestamp = datetime.now().strftime('%s')
         self.api.measurement_create(metric_id, value, source, timestamp)
 
+    def test_measurement_create_with_properties(self):
+        metric_id = 'CPU'
+        value = 0.75
+        source = 'API_TEST_SOURCE'
+        timestamp = datetime.now().strftime('%s')
+        properties = {"app_id": "red", "source_type": "blue", "origin": "green"}
+        self.api.measurement_create(metric=metric_id, value=value, source=source,
+                                    timestamp=timestamp, properties=properties)
+
     def test_measurement_create_batch(self):
         measurements = []
         timestamp = int(datetime.now().strftime('%s'))
         measurements.append(Measurement(metric='CPU', value=0.5, source='red', timestamp=timestamp))
         measurements.append(Measurement(metric='CPU', value=0.6, source='green', timestamp=timestamp))
         measurements.append(Measurement(metric='CPU', value=0.7, source='blue', timestamp=timestamp))
+        self.api.measurement_create_batch(measurements)
+
+    def test_measurement_create_batch_with_properties(self):
+        measurements = []
+        properties = {"app_id": "red", "source_type": "blue", "origin": "green"}
+        timestamp = int(datetime.now().strftime('%s'))
+        measurements.append(Measurement(metric='CPU', value=0.5, source='red',
+                                        timestamp=timestamp, properties=properties))
+        measurements.append(Measurement(metric='CPU', value=0.6, source='green',
+                                        timestamp=timestamp, properties=properties))
+        measurements.append(Measurement(metric='CPU', value=0.7, source='blue',
+                                        timestamp=timestamp, properties=properties))
         self.api.measurement_create_batch(measurements)

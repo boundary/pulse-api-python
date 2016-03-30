@@ -16,15 +16,17 @@
 
 class Measurement(object):
 
-    def __init__(self, metric=None, value=None, source=None, timestamp=None):
+    def __init__(self, metric=None, value=None, source=None, timestamp=None, properties=None):
         self._metric = None
         self._value = None
         self._source = None
         self._timestamp = None
+        self._properties = None
         self.metric = metric
         self.value = value
         self.source = source
         self.timestamp = timestamp
+        self.properties = properties
 
     def __repr__(self):
         return "Measurement({0}, {1}, {2}, {3})".format(self.metric, self.value, self.source, self.timestamp)
@@ -61,6 +63,14 @@ class Measurement(object):
     def timestamp(self, timestamp):
         self._timestamp = timestamp
 
+    @property
+    def properties(self):
+        return self._properties
+
+    @properties.setter
+    def properties(self, properties):
+        self._properties = properties
+
 
 def serialize_instance(obj):
     d = []
@@ -68,4 +78,15 @@ def serialize_instance(obj):
     d.append(obj.metric)
     d.append(obj.value)
     d.append(obj.timestamp)
+    d.append(obj.properties)
+    return d
+
+
+def serialize_instance(obj):
+    d = []
+    d.append(obj.source)
+    d.append(obj.metric)
+    d.append(obj.value)
+    d.append(obj.timestamp)
+    d.append(obj.properties)
     return d
