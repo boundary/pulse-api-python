@@ -7,3 +7,4 @@ from tspapi.exception import HTTPResponseError
 from tspapi.source import Source
 from tspapi.event import RawEvent
 from tspapi.event import Event
+from tspapi.metric import Metric

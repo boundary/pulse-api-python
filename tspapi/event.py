@@ -17,6 +17,7 @@
 class BaseEvent(object):
 
     def __init__(self, *args, **kwargs):
+        self._created_at = kwargs['created_at'] if 'created_at' in kwargs else None
         self._event_id = kwargs['event_id'] if 'event_id' in kwargs else None
         self._fingerprint_fields = kwargs['fingerprint_fields'] if 'fingerprint_fields' in kwargs else None
         self._id = kwargs['id'] if 'id' in kwargs else None
@@ -31,6 +32,10 @@ class BaseEvent(object):
         self._title = kwargs['title'] if 'title' in kwargs else None
 
         self._received_at = kwargs['received_at'] if 'received_at' in kwargs else None
+
+    @property
+    def created_at(self):
+        return self._created_at
 
     @property
     def event_id(self):

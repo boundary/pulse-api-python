@@ -23,6 +23,7 @@ class RawEventTest(TestCase):
 
     def test_default_constructor(self):
         source = RawEvent()
+        self.assertIsNone(source.created_at)
         self.assertIsNone(source.event_id)
         self.assertIsNone(source.fingerprint_fields)
         self.assertIsNone(source.id)
