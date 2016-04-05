@@ -14,23 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
-from unittest import TestCase
-from tspapi import API
-from tspapi.exception import HTTPResponseError
-from utils import TestUtils
+import random
+import string
 
 
-class HostgroupTest(TestCase):
+class TestUtils(object):
 
-    def setUp(self):
-        self.api = API()
-
-    def test_create(self):
-        self.api.hostgroup_create('test' + TestUtils.random_string(6), ['red', 'green', 'blue'])
-
-    def test_empty_name(self):
-        try:
-            self.api.hostgroup_create(None, ['red', 'green', 'blue'])
-        except HTTPResponseError as e:
-            print(e)
+    @staticmethod
+    def random_string(n):
+        return ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(n))

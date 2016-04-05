@@ -4,3 +4,6 @@ from tspapi.api import API
 from tspapi.measurement import Measurement
 from tspapi.exception import ConnectionError
 from tspapi.exception import HTTPResponseError
+from tspapi.source import Source
+from tspapi.event import RawEvent
+from tspapi.event import Event
