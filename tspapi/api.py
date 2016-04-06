@@ -19,6 +19,7 @@ import json
 import logging
 from tspapi.api_call import _ApiCall
 import tspapi.measurement as measurement
+import tspapi.metric as metric
 
 
 class API(_ApiCall):
@@ -78,8 +79,54 @@ class API(_ApiCall):
         self._path = "v1/measurements"
         self._api_call()
 
-    def metric_create(self):
-        pass
+    def metric_create(self,
+                      name=None,
+                      display_name=None,
+                      display_name_short=None,
+                      description=None,
+                      default_aggregate='avg',
+                      default_resolution=1000,
+                      unit='number',
+                      is_disabled=False,
+                      _type=None):
+
+        if name is None:
+            raise ValueError("name not specified")
+
+        if display_name is None:
+            display_name = name
+
+        if display_name_short is None:
+            display_name_short = name
+
+        if description is None:
+            description = name
+
+        metric = {
+            "name": name,
+            "displayName": display_name,
+            "displayNameShort": display_name_short,
+            "description": description,
+            "defaultAggregate": default_aggregate,
+            "defaultResolutionMS": default_resolution,
+            "unit": unit,
+            "isDisabled": is_disabled,
+            "type": _type
+        }
+        print(metric)
+
+        self._method = 'POST'
+        self._data = json.dumps(metric)
+        self._headers = {'Content-Type': 'application/json', "Accept": "application/json"}
+        self._path = "v1/metrics"
+        self._api_call()
+
+    def metric_create_batch(self, metrics):
+        self._method = 'POST'
+        self._data = json.dumps(metrics, default=metric.serialize_instance)
+        self._headers = {'Content-Type': 'application/json', "Accept": "application/json"}
+        self._path = "v1/batch/metrics"
+        self._api_call()
 
     def metric_delete(self):
         pass

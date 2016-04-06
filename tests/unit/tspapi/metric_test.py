@@ -18,6 +18,11 @@
 from unittest import TestCase
 from tspapi import API
 from tspapi import Metric
+import tspapi.metric as metric
+from utils import TestUtils
+import json
+import string
+import logging
 
 
 class MetricTest(TestCase):
@@ -32,4 +37,48 @@ class MetricTest(TestCase):
         self.assertIsNone(metric.display_name)
         self.assertIsNone(metric.display_name_short)
         self.assertIsNone(metric.description)
+        self.assertEqual(metric.default_aggregate, 'avg')
+        self.assertEqual(metric.default_resolution, 1000)
+        self.assertEqual(metric.unit, 'number')
+        self.assertIsNone(metric.type)
+
+    def test_metric_to_json(self):
+        m = Metric(name="TEST")
+        data = json.dumps(m, default=metric.serialize_instance)
+        s = []
+        s.append('{"displayName": "TEST", "description": "TEST", "isDisabled": false, "displayNameShort": "TEST",')
+        s.append(' "defaultAggregate": "avg", "unit": "number", "defaultResolutionMS": 1000, "name": "TEST"}')
+        expected = string.join(s, sep='')
+        self.assertEqual(data, expected)
+
+    def test_metric_list_to_json(self):
+        l = []
+        l.append(Metric(name="ONE"))
+        l.append(Metric(name="TWO"))
+        s = []
+        s.append('[{"displayName": "ONE", "description": "ONE", "isDisabled": false, "displayNameShort": "ONE",')
+        s.append(' "defaultAggregate": "avg", "unit": "number", "defaultResolutionMS": 1000, "name": "ONE"},')
+        s.append(' {"displayName": "TWO", "description": "TWO", "isDisabled": false, "displayNameShort": "TWO",')
+        s.append(' "defaultAggregate": "avg", "unit": "number", "defaultResolutionMS": 1000, "name": "TWO"}]')
+        expected = string.join(s, sep='')
+
+        data = json.dumps(l, default=metric.serialize_instance)
+        print(data)
+        self.assertEqual(data, expected)
+
+    def test_metric_empty_name(self):
+        try:
+            self.api.metric_create()
+        except ValueError as e:
+            pass
+
+    def test_metric_create(self):
+        self.api.metric_create(name="FOOBAR" + TestUtils.random_string(6))
+
+    def test_metric_create_one_batch(self):
+        # logging.basicConfig(level=logging.DEBUG)
+        metric1 = Metric(name='METRIC' + TestUtils.random_string(6),
+                         display_name='BATCH',
+                         display_name_short='BATCH')
+        self.api.metric_create_batch([metric1])
 

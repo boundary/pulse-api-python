@@ -18,13 +18,14 @@ class Metric(object):
 
     def __init__(self, *args, **kwargs):
         self._name = kwargs['name'] if 'name' in kwargs else None
-        self._display_name = kwargs['display_name'] if 'display_name' in kwargs else None
-        self._display_name_short = kwargs['display_name_short'] if 'display_name_short' in kwargs else None
-        self._description = kwargs['description'] if 'description' in kwargs else None
-        self._default_aggregate = kwargs['default_aggregate'] if 'default_aggregate' in kwargs else None
-        self._default_resolution = kwargs['default_resolution'] if 'default_resolution' in kwargs else None
-        self._is_disabled = kwargs['is_disabled'] if 'is_disabled' in kwargs else None
-        self._unit = kwargs['unit'] if 'unit' in kwargs else None
+        self._display_name = kwargs['display_name'] if 'display_name' in kwargs else self._name
+        self._display_name_short = kwargs['display_name_short'] if 'display_name_short' in kwargs else self._name
+        self._description = kwargs['description'] if 'description' in kwargs else self._name
+        self._default_aggregate = kwargs['default_aggregate'] if 'default_aggregate' in kwargs else 'avg'
+        self._default_resolution = kwargs['default_resolution'] if 'default_resolution' in kwargs else 1000
+        self._is_disabled = kwargs['is_disabled'] if 'is_disabled' in kwargs else False
+        self._unit = kwargs['unit'] if 'unit' in kwargs else 'number'
+        self._type = kwargs['_type'] if '_type' in kwargs else None
 
     @property
     def name(self):
@@ -51,5 +52,28 @@ class Metric(object):
         return self._default_resolution
 
     @property
+    def is_disabled(self):
+        return self._is_disabled
+
+    @property
     def unit(self):
         return self._unit
+
+    @property
+    def type(self):
+        return self._type
+
+
+def serialize_instance(obj):
+    d = {}
+    d['name'] = obj.name
+    d['displayName'] = obj.display_name
+    d['displayNameShort'] = obj.display_name_short
+    d['description'] = obj.description
+    d['defaultAggregate'] = obj.default_aggregate
+    d['defaultResolutionMS'] = obj.default_resolution
+    d['unit'] = obj.unit
+    if obj.type is not None:
+        d['type'] = obj.type
+    d['isDisabled'] = obj.is_disabled
+    return d

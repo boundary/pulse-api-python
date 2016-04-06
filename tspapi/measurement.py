@@ -81,12 +81,3 @@ def serialize_instance(obj):
     d.append(obj.properties)
     return d
 
-
-def serialize_instance(obj):
-    d = []
-    d.append(obj.source)
-    d.append(obj.metric)
-    d.append(obj.value)
-    d.append(obj.timestamp)
-    d.append(obj.properties)
-    return d
