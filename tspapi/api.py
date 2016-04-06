@@ -128,8 +128,13 @@ class API(_ApiCall):
         self._path = "v1/batch/metrics"
         self._api_call()
 
-    def metric_delete(self):
-        pass
+    def metric_delete(self, name, remove_alarms=False):
+        self._method = 'DELETE'
+        self._headers = {'Content-Type': 'application/json', "Accept": "application/json"}
+        data = { "removeAlarms": remove_alarms}
+        self._data = json.dumps(data)
+        self._path = "v1/metrics/{0}".format(name)
+        self._api_call()
 
     def metric_list(self):
         pass

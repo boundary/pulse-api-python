@@ -73,12 +73,26 @@ class MetricTest(TestCase):
             pass
 
     def test_metric_create(self):
-        self.api.metric_create(name="FOOBAR" + TestUtils.random_string(6))
+        self.api.metric_create(name="TEST_FOOBAR" + TestUtils.random_string(6))
 
     def test_metric_create_one_batch(self):
         # logging.basicConfig(level=logging.DEBUG)
-        metric1 = Metric(name='METRIC' + TestUtils.random_string(6),
+        name = 'TEST_METRIC' + TestUtils.random_string(6)
+        metric1 = Metric(name=name,
                          display_name='BATCH',
                          display_name_short='BATCH')
         self.api.metric_create_batch([metric1])
+        self.api.metric_delete(name)
+
+    def test_metric_create_multiple_batch(self):
+        pass
+
+    def test_metric_delete(self):
+        name = "TEST_FOOBAR" + TestUtils.random_string(6)
+
+        self.api.metric_create(name=name)
+        self.api.metric_delete(name)
+
+    def test_metric_update(self):
+        self.api.metric_create(name="TEST_FOOBAR" + TestUtils.random_string(6))
 
