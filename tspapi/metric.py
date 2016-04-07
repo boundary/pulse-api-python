@@ -12,11 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import requests
+import json
+import logging
 
 
 class Metric(object):
-
     def __init__(self, *args, **kwargs):
+        if 'name' not in kwargs:
+            raise ValueError("name not specified")
+
         self._name = kwargs['name'] if 'name' in kwargs else None
         self._display_name = kwargs['display_name'] if 'display_name' in kwargs else self._name
         self._display_name_short = kwargs['display_name_short'] if 'display_name_short' in kwargs else self._name
@@ -26,6 +31,31 @@ class Metric(object):
         self._is_disabled = kwargs['is_disabled'] if 'is_disabled' in kwargs else False
         self._unit = kwargs['unit'] if 'unit' in kwargs else 'number'
         self._type = kwargs['_type'] if '_type' in kwargs else None
+
+    def __str__(self):
+        return self.__repr__()
+
+    def __repr__(self):
+        return "{0}(name='{1}'" \
+               ", display_name='{2}'" \
+               ", display_name_short='{3}'" \
+               ", description='{4}'" \
+               ", default_aggregate='{5}'" \
+               ", default_resolution={6}" \
+               ", unit='{7}'" \
+               ", _type='{8}'" \
+               ", is_disabled='{9}'" \
+               ")".format(
+                self.__class__.__name__,
+                self._name,
+                self._display_name,
+                self._display_name_short,
+                self._description,
+                self._default_aggregate,
+                self._default_resolution,
+                self._unit,
+                self._type,
+                self._is_disabled)
 
     @property
     def name(self):
@@ -77,3 +107,24 @@ def serialize_instance(obj):
         d['type'] = obj.type
     d['isDisabled'] = obj.is_disabled
     return d
+
+
+def metric_get_handle_results(api_result):
+    logging.debug("metric_get_handle_results")
+    result = None
+    # Only process if we get HTTP result of 200
+    if api_result.status_code == requests.codes.ok:
+        results = json.loads(api_result.text)
+        metrics = []
+        for metric in results['result']:
+            metrics.append(Metric(name=metric['name'],
+                                  display_name=metric['displayName'],
+                                  display_name_short=metric['displayNameShort'],
+                                  description=metric['description'],
+                                  default_aggregate=metric['defaultAggregate'],
+                                  default_resolution=metric['defaultResolutionMS'],
+                                  unit=metric['unit'],
+                                  _type=metric['type'] if 'type' in metric else None,
+                                  is_disabled=metric['isDisabled']))
+
+        return metrics

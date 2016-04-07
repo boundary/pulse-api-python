@@ -16,7 +16,6 @@
 
 import os
 import json
-import logging
 from tspapi.api_call import _ApiCall
 import tspapi.measurement as measurement
 import tspapi.metric as metric
@@ -113,7 +112,6 @@ class API(_ApiCall):
             "isDisabled": is_disabled,
             "type": _type
         }
-        print(metric)
 
         self._method = 'POST'
         self._data = json.dumps(metric)
@@ -126,18 +124,24 @@ class API(_ApiCall):
         self._data = json.dumps(metrics, default=metric.serialize_instance)
         self._headers = {'Content-Type': 'application/json', "Accept": "application/json"}
         self._path = "v1/batch/metrics"
-        self._api_call()
+        result = self._api_call(handle_results=metric.metric_get_handle_results)
+        return result
 
     def metric_delete(self, name, remove_alarms=False):
         self._method = 'DELETE'
         self._headers = {'Content-Type': 'application/json', "Accept": "application/json"}
-        data = { "removeAlarms": remove_alarms}
+        data = {
+            "removeAlarms": remove_alarms
+        }
         self._data = json.dumps(data)
         self._path = "v1/metrics/{0}".format(name)
         self._api_call()
 
-    def metric_list(self):
-        pass
+    def metric_get(self, enabled=True, custom=True):
+        self._method = 'GET'
+        self._path = "v1/metrics"
+        result = self._api_call(handle_results=metric.metric_get_handle_results)
+        return result
 
     def metric_update(self):
         pass
