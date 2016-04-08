@@ -61,7 +61,7 @@ class MetricTest(TestCase):
         self.assertEqual(name, m.name)
         self.assertEqual(name, m.display_name)
         self.assertEqual(name, m.display_name_short)
-        self.assertEqual(name, m.description)
+        self.assertEqual('', m.description)
         self.assertEqual(m.default_aggregate, 'avg')
         self.assertEqual(m.default_resolution, 1000)
         self.assertEqual(m.unit, 'number')
@@ -92,7 +92,7 @@ class MetricTest(TestCase):
     def test_metric_to_json(self):
         m = Metric(name="TEST")
         data = json.dumps(m, sort_keys=True, default=tspapi.metric.serialize_instance)
-        s = ['{"defaultAggregate": "avg", "defaultResolutionMS": 1000, "description": "TEST",',
+        s = ['{"defaultAggregate": "avg", "defaultResolutionMS": 1000, "description": "",',
              ' "displayName": "TEST", "displayNameShort": "TEST", "isDisabled": false, "name": "TEST",',
              ' "unit": "number"}']
         expected = "".join(s)
@@ -101,10 +101,10 @@ class MetricTest(TestCase):
     def test_metric_list_to_json(self):
         l = [Metric(name="ONE"), Metric(name="TWO")]
         self.maxDiff = None
-        s = ['[{"defaultAggregate": "avg", "defaultResolutionMS": 1000, "description": "ONE", "displayName": "ONE",',
+        s = ['[{"defaultAggregate": "avg", "defaultResolutionMS": 1000, "description": "", "displayName": "ONE",',
              ' "displayNameShort": "ONE", "isDisabled": false, "name": "ONE",',
              ' "unit": "number"},',
-             ' {"defaultAggregate": "avg", "defaultResolutionMS": 1000, "description": "TWO", "displayName": "TWO",',
+             ' {"defaultAggregate": "avg", "defaultResolutionMS": 1000, "description": "", "displayName": "TWO",',
              ' "displayNameShort": "TWO", "isDisabled": false, "name": "TWO",',
              ' "unit": "number"}]']
         expected = "".join(s)
@@ -138,7 +138,33 @@ class MetricTest(TestCase):
             pass
 
     def test_metric_create(self):
-        self.api.metric_create(name="TEST_CREATE_FOOBAR" + TestUtils.random_string(6))
+        name = "TEST_CREATE_FOOBAR" + TestUtils.random_string(6)
+        display_name = "TEST_METRIC_CREATE" + TestUtils.random_string(6)
+        display_name_short = "TEST_METRIC" + TestUtils.random_string(6)
+        description = TestUtils.random_string(32)
+        default_aggregate = 'avg'
+        default_resolution  = 60000
+        unit = 'duration'
+        _type = 'FOO'
+        is_disabled = True
+        metric = self.api.metric_create(name=name,
+                                        display_name=display_name,
+                                        display_name_short=display_name_short,
+                                        description=description,
+                                        default_aggregate=default_aggregate,
+                                        default_resolution=default_resolution,
+                                        unit=unit,
+                                        _type=_type,
+                                        is_disabled=is_disabled)
+        self.assertEqual(name, metric.name)
+        self.assertEqual(display_name, metric.display_name)
+        self.assertEqual(display_name_short, metric.display_name_short)
+        self.assertEqual(description, metric.description)
+        self.assertEqual(default_aggregate.upper(), metric.default_aggregate)
+        self.assertEqual(default_resolution, metric.default_resolution)
+        self.assertEqual(unit, metric.unit)
+        self.assertEqual(_type, metric.type)
+        self.assertEqual(is_disabled, metric.is_disabled)
 
     def test_metric_create_one_batch(self):
         name = 'TEST_CREATE_BATCH_ONE_FOOBAR' + TestUtils.random_string(6)

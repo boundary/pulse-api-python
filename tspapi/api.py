@@ -151,7 +151,8 @@ class API(ApiCall):
         self._data = json.dumps(metric)
         self._headers = {'Content-Type': 'application/json', "Accept": "application/json"}
         self._path = "v1/metrics"
-        self._api_call()
+        result = self._api_call(handle_results=tspapi.metric.metric_get_handle_results)
+        return result
 
     def metric_create_batch(self, metrics):
         """
@@ -163,7 +164,7 @@ class API(ApiCall):
         self._data = json.dumps(metrics, default=tspapi.metric.serialize_instance)
         self._headers = {'Content-Type': 'application/json', "Accept": "application/json"}
         self._path = "v1/batch/metrics"
-        result = self._api_call(handle_results=tspapi.metric.metric_get_handle_results)
+        result = self._api_call(handle_results=tspapi.metric.metric_batch_get_handle_results)
         return result
 
     def metric_delete(self, name=None, remove_alarms=False):
@@ -195,7 +196,7 @@ class API(ApiCall):
         self._data = None
         self._path = "v1/metrics"
         self._url_parameters = {"enabled": enabled, "custom": custom}
-        result = self._api_call(handle_results=tspapi.metric.metric_get_handle_results)
+        result = self._api_call(handle_results=tspapi.metric.metric_batch_get_handle_results)
         return result
 
     def metric_update(self):

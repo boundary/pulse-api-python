@@ -18,19 +18,29 @@ import logging
 
 
 class Metric(object):
-    def __init__(self, *args, **kwargs):
-        if 'name' not in kwargs:
-            raise ValueError("name not specified")
+    def __init__(self,
+                 name=None,
+                 display_name=None,
+                 display_name_short=None,
+                 description='',
+                 default_aggregate='avg',
+                 default_resolution=1000,
+                 unit='number',
+                 _type=None,
+                 is_disabled=False):
 
-        self._name = kwargs['name'] if 'name' in kwargs else None
-        self._display_name = kwargs['display_name'] if 'display_name' in kwargs else self._name
-        self._display_name_short = kwargs['display_name_short'] if 'display_name_short' in kwargs else self._name
-        self._description = kwargs['description'] if 'description' in kwargs else self._name
-        self._default_aggregate = kwargs['default_aggregate'] if 'default_aggregate' in kwargs else 'avg'
-        self._default_resolution = kwargs['default_resolution'] if 'default_resolution' in kwargs else 1000
-        self._is_disabled = kwargs['is_disabled'] if 'is_disabled' in kwargs else False
-        self._unit = kwargs['unit'] if 'unit' in kwargs else 'number'
-        self._type = kwargs['_type'] if '_type' in kwargs else None
+        if name is None:
+            raise ValueError("name value not specified")
+
+        self._name = name
+        self._display_name = display_name if display_name is not None else self._name
+        self._display_name_short = display_name_short if display_name_short is not None else self._name
+        self._description = description
+        self._default_aggregate = default_aggregate
+        self._default_resolution = default_resolution
+        self._is_disabled = is_disabled
+        self._unit = unit
+        self._type = _type
 
     def __str__(self):
         return self.__repr__()
@@ -111,7 +121,25 @@ def serialize_instance(obj):
 
 def metric_get_handle_results(api_result, context=None):
     logging.debug("metric_get_handle_results")
-    result = None
+    metric = None
+    if api_result.status_code == requests.codes.ok:
+        results = json.loads(api_result.text)
+        m = results['result']
+        metric = Metric(name=m['name'],
+                        display_name=m['displayName'],
+                        display_name_short=m['displayNameShort'],
+                        description=m['description'],
+                        default_aggregate=m['defaultAggregate'],
+                        default_resolution=m['defaultResolutionMS'],
+                        unit=m['unit'],
+                        _type=m['type'] if 'type' in m else None,
+                        is_disabled=m['isDisabled'])
+    return metric
+
+
+def metric_batch_get_handle_results(api_result, context=None):
+    logging.debug("metric_batch_get_handle_results")
+    metrics = None
     # Only process if we get HTTP result of 200
     if api_result.status_code == requests.codes.ok:
         results = json.loads(api_result.text)
@@ -127,4 +155,4 @@ def metric_get_handle_results(api_result, context=None):
                                   _type=metric['type'] if 'type' in metric else None,
                                   is_disabled=metric['isDisabled']))
 
-        return metrics
+    return metrics
