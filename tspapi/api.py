@@ -88,6 +88,19 @@ class API(ApiCall):
                       unit='number',
                       is_disabled=False,
                       _type=None):
+        """
+        Creates a new metric definition
+        :param name:
+        :param display_name:
+        :param display_name_short:
+        :param description:
+        :param default_aggregate:
+        :param default_resolution:
+        :param unit:
+        :param is_disabled:
+        :param _type:
+        :return:
+        """
 
         if name is None:
             raise ValueError("name not specified")
@@ -120,6 +133,11 @@ class API(ApiCall):
         self._api_call()
 
     def metric_create_batch(self, metrics):
+        """
+        Creates multiple metric definitions
+        :param metrics:
+        :return:
+        """
         self._method = 'POST'
         self._data = json.dumps(metrics, default=tspapi.metric.serialize_instance)
         self._headers = {'Content-Type': 'application/json', "Accept": "application/json"}
@@ -127,7 +145,15 @@ class API(ApiCall):
         result = self._api_call(handle_results=tspapi.metric.metric_get_handle_results)
         return result
 
-    def metric_delete(self, name, remove_alarms=False):
+    def metric_delete(self, name=None, remove_alarms=False):
+        """
+        Deletes a metric definition from an account
+        :param name: Name of the metric to delete
+        :param remove_alarms: Set to true to remove the associated alarms
+        :return: None
+        """
+        if name is None:
+            raise ValueError("name not specified")
         self._method = 'DELETE'
         self._headers = {'Content-Type': 'application/json', "Accept": "application/json"}
         data = {
@@ -137,9 +163,16 @@ class API(ApiCall):
         self._path = "v1/metrics/{0}".format(name)
         self._api_call()
 
-    def metric_get(self, enabled=True, custom=True):
+    def metric_get(self, enabled=False, custom=False):
+        """
+        Fetch the metric definitions from an account
+        :param enabled: Filter the list to only return enabled metrics
+        :param custom: Filter the list to only return custom metrics
+        :return: List of metric definition instances
+        """
         self._method = 'GET'
         self._path = "v1/metrics"
+        self._url_parameters = {"enabled": enabled, "custom": custom}
         result = self._api_call(handle_results=tspapi.metric.metric_get_handle_results)
         return result
 
