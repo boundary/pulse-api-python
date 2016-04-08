@@ -16,16 +16,16 @@
 
 import os
 import json
-from tspapi.api_call import _ApiCall
+from tspapi.api_call import ApiCall
 import tspapi.measurement as measurement
-import tspapi.metric as metric
+import tspapi.metric
 
 
-class API(_ApiCall):
+class API(ApiCall):
 
     def __init__(self, api_host=None, email=None, api_token=None):
         (api_host, email, api_token) = self._get_environment(api_host, email, api_token)
-        _ApiCall.__init__(self, api_host=api_host, email=email, api_token=api_token)
+        ApiCall.__init__(self, api_host=api_host, email=email, api_token=api_token)
 
     def _get_environment(self, api_host, email, api_token):
         """
@@ -121,10 +121,10 @@ class API(_ApiCall):
 
     def metric_create_batch(self, metrics):
         self._method = 'POST'
-        self._data = json.dumps(metrics, default=metric.serialize_instance)
+        self._data = json.dumps(metrics, default=tspapi.metric.serialize_instance)
         self._headers = {'Content-Type': 'application/json', "Accept": "application/json"}
         self._path = "v1/batch/metrics"
-        result = self._api_call(handle_results=metric.metric_get_handle_results)
+        result = self._api_call(handle_results=tspapi.metric.metric_get_handle_results)
         return result
 
     def metric_delete(self, name, remove_alarms=False):
@@ -140,7 +140,7 @@ class API(_ApiCall):
     def metric_get(self, enabled=True, custom=True):
         self._method = 'GET'
         self._path = "v1/metrics"
-        result = self._api_call(handle_results=metric.metric_get_handle_results)
+        result = self._api_call(handle_results=tspapi.metric.metric_get_handle_results)
         return result
 
     def metric_update(self):

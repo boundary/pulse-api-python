@@ -20,7 +20,7 @@ import os
 from unittest import TestCase
 from tspapi import API
 from tspapi import Metric
-import tspapi.metric as metric
+import tspapi.metric
 import json
 import random
 
@@ -89,7 +89,7 @@ class MetricTest(TestCase):
 
     def test_metric_to_json(self):
         m = Metric(name="TEST")
-        data = json.dumps(m, sort_keys=True, default=metric.serialize_instance)
+        data = json.dumps(m, sort_keys=True, default=tspapi.metric.serialize_instance)
         s = ['{"defaultAggregate": "avg", "defaultResolutionMS": 1000, "description": "TEST",',
              ' "displayName": "TEST", "displayNameShort": "TEST", "isDisabled": false, "name": "TEST",',
              ' "unit": "number"}']
@@ -108,7 +108,7 @@ class MetricTest(TestCase):
              ' "unit": "number"}]']
         expected = "".join(s)
 
-        data = json.dumps(l, sort_keys=True, default=metric.serialize_instance)
+        data = json.dumps(l, sort_keys=True, default=tspapi.metric.serialize_instance)
         self.assertEqual(expected, data)
 
     def test_metric_instance_empty_name(self):
