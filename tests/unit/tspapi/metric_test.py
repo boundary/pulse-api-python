@@ -160,9 +160,9 @@ class MetricTest(TestCase):
                          is_disabled=is_disabled)
 
         metrics = self.api.metric_create_batch([metric1])
+        self.assertEqual(len(metrics), 1)
 
         m = metrics[0]
-        self.assertEqual(len(m), 1)
         self.assertEqual(name, m.name)
         self.assertEqual(display_name, m.display_name)
         self.assertEqual(display_name_short, m.display_name_short)
@@ -264,7 +264,7 @@ class MetricTest(TestCase):
 
         metrics = self.api.metric_create_batch(new_metrics)
 
-        self.assertEqual(3, len(metrics))
+        self.assertEqual(4, len(metrics))
 
         m = metrics[0]
 
