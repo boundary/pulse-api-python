@@ -22,7 +22,7 @@ import sys
 from tspapi import HTTPResponseError
 
 
-def _handle_api_results(api_result):
+def _handle_api_results(api_result, context=None):
     result = None
     # Only process if we get HTTP result of 200
     if api_result.status_code == requests.codes.ok:
@@ -132,7 +132,7 @@ class ApiCall(object):
             raise HTTPResponseError(result.status_code, result.text)
         self._api_result = result
 
-    def _api_call(self, handle_results=_handle_api_results):
+    def _api_call(self, handle_results=_handle_api_results, context=None):
         self._call_api()
-        return handle_results(self._api_result)
+        return handle_results(self._api_result, context)
 

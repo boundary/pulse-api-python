@@ -20,9 +20,11 @@ import os
 from unittest import TestCase
 from tspapi import API
 from tspapi import Metric
+from tspapi import HTTPResponseError
 import tspapi.metric
 import json
 import random
+import requests
 
 _path = os.path.dirname(__file__)
 sys.path.append(_path)
@@ -98,7 +100,6 @@ class MetricTest(TestCase):
 
     def test_metric_list_to_json(self):
         l = [Metric(name="ONE"), Metric(name="TWO")]
-        s = []
         self.maxDiff = None
         s = ['[{"defaultAggregate": "avg", "defaultResolutionMS": 1000, "description": "ONE", "displayName": "ONE",',
              ' "displayNameShort": "ONE", "isDisabled": false, "name": "ONE",',
@@ -119,6 +120,7 @@ class MetricTest(TestCase):
         """
         try:
             m = Metric()
+            print(m)
             self.assertTrue(False)
         except ValueError:
             pass
@@ -221,8 +223,6 @@ class MetricTest(TestCase):
         _type3 = TestUtils.random_string(6)
         _type4 = TestUtils.random_string(6)
 
-        new_metrics = []
-
         new_metrics = [Metric(name=name1,
                               display_name=display_name1,
                               display_name_short=display_name_short1,
@@ -318,7 +318,6 @@ class MetricTest(TestCase):
             self.api.metric_delete(m.name)
 
     def test_metric_get(self):
-        name = 'TEST_GET_FOOBAR' + TestUtils.random_string(6)
         metrics = self.api.metric_get()
         self.assertIsNotNone(metrics)
 
@@ -326,6 +325,19 @@ class MetricTest(TestCase):
         name = 'TEST_DELETE_FOOBAR' + TestUtils.random_string(6)
         self.api.metric_create(name=name)
         self.api.metric_delete(name)
+
+    def test_metric_delete_no_name(self):
+        try:
+            self.api.metric_delete()
+            self.assertTrue(False)
+        except ValueError:
+            pass
+
+    def test_metric_delete_name_does_not_exist(self):
+        try:
+            self.api.metric_delete(TestUtils.random_string(10))
+        except HTTPResponseError as e:
+            self.assertEqual(requests.codes.unprocessable_entity, e.status_code)
 
     def test_metric_update(self):
         name = 'TEST_UPDATE_' + TestUtils.random_string(6)

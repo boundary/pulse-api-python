@@ -109,7 +109,7 @@ def serialize_instance(obj):
     return d
 
 
-def metric_get_handle_results(api_result):
+def metric_get_handle_results(api_result, context=None):
     logging.debug("metric_get_handle_results")
     result = None
     # Only process if we get HTTP result of 200

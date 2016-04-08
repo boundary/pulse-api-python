@@ -19,6 +19,7 @@ import json
 from tspapi.api_call import ApiCall
 import tspapi.measurement as measurement
 import tspapi.metric
+from datetime import datetime
 
 
 class API(ApiCall):
@@ -77,6 +78,26 @@ class API(ApiCall):
         self._headers = {'Content-Type': 'application/json', "Accept": "application/json"}
         self._path = "v1/measurements"
         self._api_call()
+
+    def measurement_get(self,
+                        source=None,
+                        metric='CPU',
+                        start=int(datetime.now().strftime('%s')) - 60,
+                        end=None,
+                        aggregate='avg',
+                        sample=1):
+        self._method = 'GET'
+        self._data = None
+        self._url_parameters = {"source": source,
+                                "start": start,
+                                "aggregate": aggregate,
+                                "sample": sample
+                                }
+        if end is not None:
+            self._url_parameters['end'] = end
+        self._path = 'v1/measurements/{0}'.format(metric)
+        result = self._api_call(handle_results=measurement.measurement_get_handle_results, context=metric)
+        return result
 
     def metric_create(self,
                       name=None,
@@ -171,6 +192,7 @@ class API(ApiCall):
         :return: List of metric definition instances
         """
         self._method = 'GET'
+        self._data = None
         self._path = "v1/metrics"
         self._url_parameters = {"enabled": enabled, "custom": custom}
         result = self._api_call(handle_results=tspapi.metric.metric_get_handle_results)

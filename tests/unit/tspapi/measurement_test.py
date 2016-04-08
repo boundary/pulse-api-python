@@ -19,10 +19,16 @@ from unittest import TestCase
 from tspapi import API
 from tspapi import Measurement
 from datetime import datetime
+import os
+import sys
+import time
+
+_path = os.path.dirname(__file__)
+sys.path.append(_path)
+from api_test_utils import TestUtils
 
 
 class MeasurementTest(TestCase):
-
     def setUp(self):
         self.api = API()
 
@@ -85,3 +91,27 @@ class MeasurementTest(TestCase):
         measurements.append(Measurement(metric='CPU', value=0.7, source='blue',
                                         timestamp=timestamp, properties=properties))
         self.api.measurement_create_batch(measurements)
+
+    def test_measurement_get(self):
+        metric = 'CPU'
+        value = 0.0
+        source = 'API_TEST_SOURCE' + TestUtils.random_string(6)
+        properties = {"app_id": "red", "source_type": "blue", "origin": "green"}
+        start_time = int(datetime.now().strftime('%s'))
+        timestamp = start_time
+        for i in range(0, 10):
+            self.api.measurement_create(metric=metric, value=value, source=source,
+                                        timestamp=timestamp, properties=properties)
+            timestamp += 1
+            value += 0.1
+
+        measurements = self.api.measurement_get(source=source)
+        value = 0.0
+        timestamp = start_time
+        for measure in measurements:
+            self.assertEqual(metric, measure.metric)
+            self.assertEqual(value, measure.value)
+            self.assertEqual(source, measure.source)
+            self.assertEqual(timestamp, measure.timestamp/1000)
+            timestamp += 1
+            value += 0.1
