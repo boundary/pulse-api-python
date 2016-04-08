@@ -14,16 +14,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import sys
+import os
+
 
 from unittest import TestCase
 from tspapi import API
 from tspapi import Metric
 import tspapi.metric as metric
-from utils import TestUtils
 import json
 import string
 import logging
 import random
+
+if sys.version_info.major >= 2:
+    _path = os.path.dirname(__file__)
+    print(_path)
+    sys.path.append(_path)
+    print(sys.path)
+from utils import TestUtils
 
 
 class MetricTest(TestCase):
