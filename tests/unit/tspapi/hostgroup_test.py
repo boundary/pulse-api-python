@@ -17,8 +17,12 @@
 
 from unittest import TestCase
 from tspapi import API
-from tspapi.exception import HTTPResponseError
-from utils import TestUtils
+from tspapi import HTTPResponseError
+import sys
+import os
+_path = os.path.dirname(__file__)
+sys.path.append(_path)
+from api_test_utils import TestUtils
 
 
 class HostgroupTest(TestCase):
@@ -33,4 +37,4 @@ class HostgroupTest(TestCase):
         try:
             self.api.hostgroup_create(None, ['red', 'green', 'blue'])
         except HTTPResponseError as e:
-            print(e)
+            pass

@@ -17,27 +17,20 @@
 import sys
 import os
 
-
 from unittest import TestCase
 from tspapi import API
 from tspapi import Metric
 import tspapi.metric as metric
 import json
-import string
-import logging
 import random
 
-if sys.version_info.major >= 2:
-    _path = os.path.dirname(__file__)
-    print(_path)
-    sys.path.append(_path)
-    print(sys.path)
-from utils import TestUtils
+_path = os.path.dirname(__file__)
+sys.path.append(_path)
+from api_test_utils import TestUtils
 
 
 class MetricTest(TestCase):
     def setUp(self):
-        # logging.basicConfig(level=logging.DEBUG)
         self.api = API()
 
         self.name = 'red'
@@ -89,31 +82,34 @@ class MetricTest(TestCase):
         :param self:
         :return:
         """
-        expected = "Metric(name='red', display_name='green', display_name_short='blue', description='magenta', default_aggregate='sum', default_resolution=60000, unit='duration', _type='FOOBAR', is_disabled='False')"
-        self.assertEqual(expected, self.metric.__repr__())
+        expected = ["Metric(name='red', display_name='green', display_name_short='blue',",
+                    " description='magenta', default_aggregate='sum', default_resolution=60000,",
+                    " unit='duration', _type='FOOBAR', is_disabled='False')"]
+        self.assertEqual("".join(expected), self.metric.__repr__())
 
     def test_metric_to_json(self):
         m = Metric(name="TEST")
-        data = json.dumps(m, default=metric.serialize_instance)
-        s = []
-        s.append('{"displayName": "TEST", "description": "TEST", "isDisabled": false, "displayNameShort": "TEST",')
-        s.append(' "defaultAggregate": "avg", "unit": "number", "defaultResolutionMS": 1000, "name": "TEST"}')
-        expected = string.join(s, sep='')
-        self.assertEqual(data, expected)
+        data = json.dumps(m, sort_keys=True, default=metric.serialize_instance)
+        s = ['{"defaultAggregate": "avg", "defaultResolutionMS": 1000, "description": "TEST",',
+             ' "displayName": "TEST", "displayNameShort": "TEST", "isDisabled": false, "name": "TEST",',
+             ' "unit": "number"}']
+        expected = "".join(s)
+        self.assertEqual(expected, data)
 
     def test_metric_list_to_json(self):
-        l = []
-        l.append(Metric(name="ONE"))
-        l.append(Metric(name="TWO"))
+        l = [Metric(name="ONE"), Metric(name="TWO")]
         s = []
-        s.append('[{"displayName": "ONE", "description": "ONE", "isDisabled": false, "displayNameShort": "ONE",')
-        s.append(' "defaultAggregate": "avg", "unit": "number", "defaultResolutionMS": 1000, "name": "ONE"},')
-        s.append(' {"displayName": "TWO", "description": "TWO", "isDisabled": false, "displayNameShort": "TWO",')
-        s.append(' "defaultAggregate": "avg", "unit": "number", "defaultResolutionMS": 1000, "name": "TWO"}]')
-        expected = string.join(s, sep='')
+        self.maxDiff = None
+        s = ['[{"defaultAggregate": "avg", "defaultResolutionMS": 1000, "description": "ONE", "displayName": "ONE",',
+             ' "displayNameShort": "ONE", "isDisabled": false, "name": "ONE",',
+             ' "unit": "number"},',
+             ' {"defaultAggregate": "avg", "defaultResolutionMS": 1000, "description": "TWO", "displayName": "TWO",',
+             ' "displayNameShort": "TWO", "isDisabled": false, "name": "TWO",',
+             ' "unit": "number"}]']
+        expected = "".join(s)
 
-        data = json.dumps(l, default=metric.serialize_instance)
-        self.assertEqual(data, expected)
+        data = json.dumps(l, sort_keys=True, default=metric.serialize_instance)
+        self.assertEqual(expected, data)
 
     def test_metric_instance_empty_name(self):
         """
@@ -124,7 +120,7 @@ class MetricTest(TestCase):
         try:
             m = Metric()
             self.assertTrue(False)
-        except ValueError as e:
+        except ValueError:
             pass
 
     def test_metric_empty_name(self):
@@ -136,14 +132,13 @@ class MetricTest(TestCase):
         try:
             self.api.metric_create()
             self.assertTrue(False)
-        except ValueError as e:
+        except ValueError:
             pass
 
     def test_metric_create(self):
         self.api.metric_create(name="TEST_CREATE_FOOBAR" + TestUtils.random_string(6))
 
     def test_metric_create_one_batch(self):
-        # logging.basicConfig(level=logging.DEBUG)
         name = 'TEST_CREATE_BATCH_ONE_FOOBAR' + TestUtils.random_string(6)
         display_name = "BATCH" + TestUtils.random_string(6)
         display_name_short = "BATCH" + TestUtils.random_string(3)
@@ -167,21 +162,20 @@ class MetricTest(TestCase):
         metrics = self.api.metric_create_batch([metric1])
 
         m = metrics[0]
-        self.assertEqual(len(metrics), 1)
-        self.assertEqual(name, metrics[0].name)
-        self.assertEqual(display_name, metrics[0].display_name)
-        self.assertEqual(display_name_short, metrics[0].display_name_short)
-        self.assertEqual(description, metrics[0].description)
-        self.assertEqual(default_aggregate.upper(), metrics[0].default_aggregate)
-        self.assertEqual(default_resolution, metrics[0].default_resolution)
-        self.assertEqual(unit, metrics[0].unit)
-        self.assertEqual(_type, metrics[0].type)
-        self.assertEqual(is_disabled, metrics[0].is_disabled)
+        self.assertEqual(len(m), 1)
+        self.assertEqual(name, m.name)
+        self.assertEqual(display_name, m.display_name)
+        self.assertEqual(display_name_short, m.display_name_short)
+        self.assertEqual(description, m.description)
+        self.assertEqual(default_aggregate.upper(), m.default_aggregate)
+        self.assertEqual(default_resolution, m.default_resolution)
+        self.assertEqual(unit, m.unit)
+        self.assertEqual(_type, m.type)
+        self.assertEqual(is_disabled, m.is_disabled)
 
         self.api.metric_delete(name)
 
     def test_metric_create_multiple_batch(self):
-        new_metrics = []
         name1 = 'TEST_CREATE_BATCH_ONE_FOOBAR' + TestUtils.random_string(6)
         name2 = 'TEST_CREATE_BATCH_TWO_FOOBAR' + TestUtils.random_string(6)
         name3 = 'TEST_CREATE_BATCH_THREE_FOOBAR' + TestUtils.random_string(6)
@@ -212,10 +206,10 @@ class MetricTest(TestCase):
         default_resolution3 = random.randrange(1000, 60000)
         default_resolution4 = random.randrange(1000, 60000)
 
-        unit1= 'bytecount'
-        unit2= 'duration'
-        unit3= 'number'
-        unit4= 'percent'
+        unit1 = 'bytecount'
+        unit2 = 'duration'
+        unit3 = 'number'
+        unit4 = 'percent'
 
         is_disabled1 = True
         is_disabled2 = False
@@ -227,57 +221,98 @@ class MetricTest(TestCase):
         _type3 = TestUtils.random_string(6)
         _type4 = TestUtils.random_string(6)
 
-        new_metrics.append(Metric(name=name1,
-                                  display_name=display_name1,
-                                  display_name_short=display_name_short1,
-                                  description=description1,
-                                  default_aggregate=default_aggregate1,
-                                  default_resolution=default_resolution1,
-                                  unit=unit1,
-                                  _type=_type1,
-                                  is_disabled=is_disabled1))
-        new_metrics.append(Metric(name=name2,
-                                  display_name=display_name2,
-                                  display_name_short=display_name_short2,
-                                  description=description2,
-                                  default_aggregate=default_aggregate2,
-                                  default_resolution=default_resolution2,
-                                  unit=unit2,
-                                  _type=_type2,
-                                  is_disabled=is_disabled2))
-        new_metrics.append(Metric(name=name3,
-                                  display_name=display_name3,
-                                  display_name_short=display_name_short3,
-                                  description=description3,
-                                  default_aggregate=default_aggregate3,
-                                  default_resolution=default_resolution3,
-                                  unit=unit3,
-                                  _type=_type3,
-                                  is_disabled=is_disabled3))
+        new_metrics = []
 
-        new_metrics.append(Metric(name=name4,
-                                  display_name=display_name4,
-                                  display_name_short=display_name_short4,
-                                  description=description4,
-                                  default_aggregate=default_aggregate4,
-                                  default_resolution=default_resolution4,
-                                  unit=unit4,
-                                  _type=_type4,
-                                  is_disabled=is_disabled4))
+        new_metrics = [Metric(name=name1,
+                              display_name=display_name1,
+                              display_name_short=display_name_short1,
+                              description=description1,
+                              default_aggregate=default_aggregate1,
+                              default_resolution=default_resolution1,
+                              unit=unit1,
+                              _type=_type1,
+                              is_disabled=is_disabled1),
+
+                       Metric(name=name2,
+                              display_name=display_name2,
+                              display_name_short=display_name_short2,
+                              description=description2,
+                              default_aggregate=default_aggregate2,
+                              default_resolution=default_resolution2,
+                              unit=unit2,
+                              _type=_type2,
+                              is_disabled=is_disabled2),
+                       Metric(name=name3,
+                              display_name=display_name3,
+                              display_name_short=display_name_short3,
+                              description=description3,
+                              default_aggregate=default_aggregate3,
+                              default_resolution=default_resolution3,
+                              unit=unit3,
+                              _type=_type3,
+                              is_disabled=is_disabled3),
+
+                       Metric(name=name4,
+                              display_name=display_name4,
+                              display_name_short=display_name_short4,
+                              description=description4,
+                              default_aggregate=default_aggregate4,
+                              default_resolution=default_resolution4,
+                              unit=unit4,
+                              _type=_type4,
+                              is_disabled=is_disabled4)]
 
         metrics = self.api.metric_create_batch(new_metrics)
 
-        metric = metrics[0]
+        self.assertEqual(3, len(metrics))
 
-        self.assertEqual(name1, metrics[0].name)
-        self.assertEqual(display_name1, metrics[0].display_name)
-        self.assertEqual(display_name_short1, metrics[0].display_name_short)
-        self.assertEqual(description1, metrics[0].description)
-        self.assertEqual(default_aggregate1.upper(), metrics[0].default_aggregate)
-        self.assertEqual(default_resolution1, metrics[0].default_resolution)
-        self.assertEqual(unit1, metrics[0].unit)
-        self.assertEqual(_type1, metrics[0].type)
-        self.assertEqual(is_disabled1, metrics[0].is_disabled)
+        m = metrics[0]
+
+        self.assertEqual(name1, m.name)
+        self.assertEqual(display_name1, m.display_name)
+        self.assertEqual(display_name_short1, m.display_name_short)
+        self.assertEqual(description1, m.description)
+        self.assertEqual(default_aggregate1.upper(), m.default_aggregate)
+        self.assertEqual(default_resolution1, m.default_resolution)
+        self.assertEqual(unit1, m.unit)
+        self.assertEqual(_type1, m.type)
+        self.assertEqual(is_disabled1, m.is_disabled)
+
+        m = metrics[1]
+
+        self.assertEqual(name2, m.name)
+        self.assertEqual(display_name2, m.display_name)
+        self.assertEqual(display_name_short2, m.display_name_short)
+        self.assertEqual(description2, m.description)
+        self.assertEqual(default_aggregate2.upper(), m.default_aggregate)
+        self.assertEqual(default_resolution2, m.default_resolution)
+        self.assertEqual(unit2, m.unit)
+        self.assertEqual(_type2, m.type)
+        self.assertEqual(is_disabled2, m.is_disabled)
+
+        m = metrics[2]
+
+        self.assertEqual(name3, m.name)
+        self.assertEqual(display_name3, m.display_name)
+        self.assertEqual(display_name_short3, m.display_name_short)
+        self.assertEqual(description3, m.description)
+        self.assertEqual(default_aggregate3.upper(), m.default_aggregate)
+        self.assertEqual(default_resolution3, m.default_resolution)
+        self.assertEqual(unit3, m.unit)
+        self.assertEqual(_type3, m.type)
+        self.assertEqual(is_disabled3, m.is_disabled)
+
+        m = metrics[3]
+
+        self.assertEqual(name4, m.name)
+        self.assertEqual(display_name4, m.display_name)
+        self.assertEqual(display_name_short4, m.display_name_short)
+        self.assertEqual(description4, m.description)
+        self.assertEqual(default_aggregate4.upper(), m.default_aggregate)
+        self.assertEqual(default_resolution4, m.default_resolution)
+        self.assertEqual(unit4, m.unit)
+        self.assertEqual(_type4, m.type)
+        self.assertEqual(is_disabled4, m.is_disabled)
 
         for m in metrics:
             self.api.metric_delete(m.name)

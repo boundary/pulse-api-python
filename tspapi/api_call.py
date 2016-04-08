@@ -19,8 +19,7 @@ import requests
 import urllib
 import logging
 import sys
-if sys.version_info.major < 3:
-    import exception
+from tspapi import HTTPResponseError
 
 
 def _handle_api_results(api_result):
@@ -130,7 +129,7 @@ class _ApiCall(object):
             if self._data is not None:
                 logging.error(self._data)
             logging.error(result)
-            raise exception.HTTPResponseError(result.status_code, result.text)
+            raise HTTPResponseError(result.status_code, result.text)
         self._api_result = result
 
     def _api_call(self, handle_results=_handle_api_results):
