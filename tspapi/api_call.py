@@ -16,10 +16,10 @@
 
 import json
 import requests
-import urllib
 import logging
 import sys
 from tspapi import HTTPResponseError
+import six.moves.urllib.parse as urllib
 
 
 def _handle_api_results(api_result, context=None):
