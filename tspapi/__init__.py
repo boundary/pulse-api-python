@@ -6,5 +6,4 @@ from tspapi.source import Source
 from tspapi.event import RawEvent
 from tspapi.event import Event
 from tspapi.metric import Metric
-from tspapi.api_call import _ApiCall
 from tspapi.api import API

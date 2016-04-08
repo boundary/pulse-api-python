@@ -30,7 +30,7 @@ def _handle_api_results(api_result):
         return result
 
 
-class _ApiCall(object):
+class ApiCall(object):
     def __init__(self, api_host=None, email=None, api_token=None):
         """
         :param api_host: api end point host
