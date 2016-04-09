@@ -16,11 +16,20 @@
 
 import json
 import requests
-import urllib
 import logging
+import sys
+from tspapi import HTTPResponseError
+import six.moves.urllib.parse as urllib
 
 
-def _handle_api_results(api_result):
+def _good_response(status_code):
+    """
+    Determines what status codes represent a good response from an API call.
+    """
+    return status_code == requests.codes.ok
+
+
+def _handle_api_results(api_result, context=None):
     result = None
     # Only process if we get HTTP result of 200
     if api_result.status_code == requests.codes.ok:
@@ -28,7 +37,7 @@ def _handle_api_results(api_result):
         return result
 
 
-class _ApiCall(object):
+class ApiCall(object):
     def __init__(self, api_host=None, email=None, api_token=None):
         """
         :param api_host: api end point host
@@ -63,19 +72,6 @@ class _ApiCall(object):
 
         self._api_result = None
 
-        # Set the api_host, email, api token set by environment
-        # variables then override with those passed in
-        self._get_environment()
-        if api_host is not None:
-            self._api_host = api_host
-        if email is not None:
-            self._email = email
-        if api_token is not None:
-            self._api_token = api_token
-
-    def _get_environment(self):
-        pass
-
     def _get_url_parameters(self):
         """
         Encode URL parameters
@@ -109,16 +105,12 @@ class _ApiCall(object):
         """
         return requests.put(self._url, data=self._data, headers=self._headers, auth=(self._email, self._api_token))
 
-    def _good_response(self, status_code):
-        """
-        Determines what status codes represent a good response from an API call.
-        """
-        return status_code == requests.codes.ok
+
 
     def _form_url(self):
         return "{0}://{1}/{2}{3}".format(self._scheme, self._api_host, self._path, self._get_url_parameters())
 
-    def _call_api(self):
+    def _call_api(self, good_response):
         """
         Make an API call to get the metric definition
         """
@@ -133,16 +125,17 @@ class _ApiCall(object):
 
         result = self._methods[self._method]()
 
-        if not self._good_response(result.status_code):
+        if not good_response(result.status_code):
             logging.error(self._url)
             logging.error(self._method)
             logging.error(self._headers)
             if self._data is not None:
                 logging.error(self._data)
             logging.error(result)
+            raise HTTPResponseError(result.status_code, result.text)
         self._api_result = result
 
-    def _api_call(self, handle_results=_handle_api_results):
-        self._call_api()
-        return handle_results(self._api_result)
+    def _api_call(self, handle_results=_handle_api_results, good_response=_good_response, context=None):
+        self._call_api(good_response=good_response)
+        return handle_results(self._api_result, context)
 

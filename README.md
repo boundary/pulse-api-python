@@ -7,4 +7,4 @@ Visit [https://github.com/boundary/pulse-api-python](https://github.com/boundary
 
 [![Build Status](https://travis-ci.org/boundary/pulse-api-python.svg?branch=master)](https://travis-ci.org/boundary/pulse-api-python)
 
-© Copyright 2005-2015 BMC Software, Inc. Use of this software signifies your acceptance of BMC's Terms of Use, Privacy Policy and Cookie Notice. BMC, BMC Software, the BMC logos, and other BMC marks are trademarks or registered trademarks of BMC Software, Inc. in the U.S. and/or certain other countries.
+© Copyright 2005-2016 BMC Software, Inc. Use of this software signifies your acceptance of BMC's Terms of Use, Privacy Policy and Cookie Notice. BMC, BMC Software, the BMC logos, and other BMC marks are trademarks or registered trademarks of BMC Software, Inc. in the U.S. and/or certain other countries.

@@ -16,36 +16,39 @@
 
 import os
 import json
-import logging
-from tspapi.api_call import _ApiCall
+from tspapi.api_call import ApiCall
 import tspapi.measurement as measurement
+import tspapi.metric
+import tspapi.event
+from datetime import datetime
 
 
-class API(_ApiCall):
+class API(ApiCall):
 
-    def __init__(self, api_host='premium-api.boundary.com', email=None, api_token=None):
-        self._get_environment()
-        _ApiCall.__init__(self, api_host=api_host, email=email, api_token=api_token)
+    def __init__(self, api_host=None, email=None, api_token=None):
+        (api_host, email, api_token) = self._get_environment(api_host, email, api_token)
+        ApiCall.__init__(self, api_host=api_host, email=email, api_token=api_token)
 
-    def _get_environment(self):
+    def _get_environment(self, api_host, email, api_token):
         """
         Gets the configuration stored in environment variables
         """
-        if 'TRUESIGHT_EMAIL' in os.environ:
-            self._email = os.environ['TRUESIGHT_EMAIL']
-        if 'TRUESIGHT_API_TOKEN' in os.environ:
-            self._api_token = os.environ['TRUESIGHT_API_TOKEN']
-        if 'TRUESIGHT_API_HOST' in os.environ:
-            self._api_host = os.environ['TRUESIGHT_API_HOST']
+        if email is None and 'TSP_EMAIL' in os.environ:
+            email = os.environ['TSP_EMAIL']
+        if api_token is None and 'TSP_API_TOKEN' in os.environ:
+            api_token = os.environ['TSP_API_TOKEN']
+        if api_host is None and 'TSP_API_HOST' in os.environ:
+            api_host = os.environ['TSP_API_HOST']
         else:
-            self._api_host = 'premium-api.boundary.com'
+            api_host = 'api.truesight.bmc.com'
 
-    def measurement_create(self, metric, value, source=None, timestamp=None):
+        return api_host, email, api_token
+
+    def measurement_create(self, metric, value, source=None, timestamp=None, properties=None):
         """
         Creates a new measurement in TrueSight Pulse instance.
 
-        Identifies which `metric` to use to add a measurement.
-
+        :param metric: Identifies the metric to use to add a measurement
         :param value: Value of the measurement
         :param source: Origin of the measurement
         :param timestamp: Time of the occurrence of the measurement
@@ -54,9 +57,13 @@ class API(_ApiCall):
         self._method = 'POST'
         payload = {}
         payload['metric'] = metric
-        payload['measure'] = value
-        payload['source'] = source
-        payload['timestamp'] = int(timestamp)
+        payload['measure'] = float(value)
+        if source is not None:
+            payload['source'] = source
+        if timestamp is not None:
+            payload['timestamp'] = int(timestamp)
+        if properties is not None:
+            payload['metadata'] = properties
         self._data = json.dumps(payload, sort_keys=True)
         self._headers = {'Content-Type': 'application/json', "Accept": "application/json"}
         self._path = "v1/measurements"
@@ -64,6 +71,7 @@ class API(_ApiCall):
 
     def measurement_create_batch(self, measurements):
         """
+        :param measurements: List of measurements
         :return: None
         """
         self._method = 'POST'
@@ -72,5 +80,210 @@ class API(_ApiCall):
         self._path = "v1/measurements"
         self._api_call()
 
-    def create_event(self):
+    def measurement_get(self,
+                        source=None,
+                        metric='CPU',
+                        start=int(datetime.now().strftime('%s')) - 60,
+                        end=None,
+                        aggregate='avg',
+                        sample=1):
+        self._method = 'GET'
+        self._data = None
+        self._url_parameters = {"source": source,
+                                "start": start,
+                                "aggregate": aggregate,
+                                "sample": sample
+                                }
+        if end is not None:
+            self._url_parameters['end'] = end
+        self._path = 'v1/measurements/{0}'.format(metric)
+        result = self._api_call(handle_results=measurement.measurement_get_handle_results, context=metric)
+        return result
+
+    def metric_create(self,
+                      name=None,
+                      display_name=None,
+                      display_name_short=None,
+                      description=None,
+                      default_aggregate='avg',
+                      default_resolution=1000,
+                      unit='number',
+                      is_disabled=False,
+                      _type=None):
+        """
+        Creates a new metric definition
+        :param name:
+        :param display_name:
+        :param display_name_short:
+        :param description:
+        :param default_aggregate:
+        :param default_resolution:
+        :param unit:
+        :param is_disabled:
+        :param _type:
+        :return:
+        """
+
+        if name is None:
+            raise ValueError("name not specified")
+
+        if display_name is None:
+            display_name = name
+
+        if display_name_short is None:
+            display_name_short = name
+
+        if description is None:
+            description = name
+
+        metric = {
+            "name": name,
+            "displayName": display_name,
+            "displayNameShort": display_name_short,
+            "description": description,
+            "defaultAggregate": default_aggregate,
+            "defaultResolutionMS": default_resolution,
+            "unit": unit,
+            "isDisabled": is_disabled,
+            "type": _type
+        }
+
+        self._method = 'POST'
+        self._data = json.dumps(metric)
+        self._headers = {'Content-Type': 'application/json', "Accept": "application/json"}
+        self._path = "v1/metrics"
+        result = self._api_call(handle_results=tspapi.metric.metric_get_handle_results)
+        return result
+
+    def metric_create_batch(self, metrics):
+        """
+        Creates multiple metric definitions
+        :param metrics:
+        :return:
+        """
+        self._method = 'POST'
+        self._data = json.dumps(metrics, default=tspapi.metric.serialize_instance)
+        self._headers = {'Content-Type': 'application/json', "Accept": "application/json"}
+        self._path = "v1/batch/metrics"
+        result = self._api_call(handle_results=tspapi.metric.metric_batch_get_handle_results)
+        return result
+
+    def metric_delete(self, name=None, remove_alarms=False):
+        """
+        Deletes a metric definition from an account
+        :param name: Name of the metric to delete
+        :param remove_alarms: Set to true to remove the associated alarms
+        :return: None
+        """
+        if name is None:
+            raise ValueError("name not specified")
+        self._method = 'DELETE'
+        self._headers = {'Content-Type': 'application/json', "Accept": "application/json"}
+        data = {
+            "removeAlarms": remove_alarms
+        }
+        self._data = json.dumps(data)
+        self._path = "v1/metrics/{0}".format(name)
+        self._api_call()
+
+    def metric_get(self, enabled=False, custom=False):
+        """
+        Fetch the metric definitions from an account
+        :param enabled: Filter the list to only return enabled metrics
+        :param custom: Filter the list to only return custom metrics
+        :return: List of metric definition instances
+        """
+        self._method = 'GET'
+        self._data = None
+        self._path = "v1/metrics"
+        self._url_parameters = {"enabled": enabled, "custom": custom}
+        result = self._api_call(handle_results=tspapi.metric.metric_batch_get_handle_results)
+        return result
+
+    def metric_update(self):
         pass
+
+    def event_create(self,
+                     created_at=None,
+                     fingerprintFields=None,
+                     message=None,
+                     properties=None,
+                     sender=None,
+                     severity='INFO',
+                     source=None,
+                     status='OPEN',
+                     tags=None,
+                     title=None,
+                     ):
+        """
+        Creates an event in an account
+        :param created_at:
+        :param fingerprintFields:
+        :param message:
+        :param properties:
+        :param sender:
+        :param severity:
+        :param source:
+        :param status:
+        :param tags:
+        :param title:
+        :return:
+        """
+
+        if title is None:
+            raise ValueError('title not specified')
+
+        if source is None:
+            raise ValueError('source not specified')
+
+        if fingerprintFields is None:
+            raise ValueError('fingerprintFields not specified')
+        payload = {}
+
+        if created_at is not None:
+            payload['createdAt'] = created_at
+
+        if fingerprintFields is not None:
+            payload['fingerprintFields'] = fingerprintFields
+
+        if message is not None:
+            payload['message'] = message
+
+        if source is not None:
+            payload['source'] = {}
+            payload['source']['ref'] = source.ref
+            payload['source']['type'] = source.type
+            payload['source']['name'] = source.name
+
+        if title is not None:
+            payload['title'] = title
+
+        self._method = 'POST'
+        self._data = json.dumps(payload)
+        self._headers = {'Content-Type': 'application/json', "Accept": "application/json"}
+        self._path = 'v1/events'
+        self._api_call(handle_results=tspapi.event.event_create_handle_results,
+                       good_response=tspapi.event.event_create_good_response)
+
+    def event_get(self):
+        pass
+
+    def event_list(self):
+        self._method = 'GET'
+        self._data = None
+        self._headers = {"Accept": "application/json"}
+        self._path = "v1/events"
+        result = self._api_call(handle_results=tspapi.event.event_get_handle_results)
+        return result
+
+    def hostgroup_create(self, name, sources=[]):
+
+        payload = {}
+        payload['name'] = name
+        payload['hostnames'] = sources
+
+        self._method = 'POST'
+        self._data = json.dumps(payload)
+        self._headers = {'Content-Type': 'application/json', "Accept": "application/json"}
+        self._path = "v1/hostgroups"
+        self._api_call()

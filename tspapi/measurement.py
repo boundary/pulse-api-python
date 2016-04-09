@@ -13,21 +13,26 @@
 # limitations under the License.
 #
 
+import logging
+import requests
+import json
+
 
 class Measurement(object):
-
-    def __init__(self, metric=None, value=None, source=None, timestamp=None):
+    def __init__(self, metric=None, value=None, source=None, timestamp=None, properties=None):
         self._metric = None
         self._value = None
         self._source = None
         self._timestamp = None
+        self._properties = None
         self.metric = metric
         self.value = value
         self.source = source
         self.timestamp = timestamp
+        self.properties = properties
 
     def __repr__(self):
-        return "Measurement({0}, {1}, {2}, {3})".format(self.metric, self.value, self.source, self.timestamp)
+        return "Measurement(metric='{0}', value={1}, source='{2}', timestamp={3})".format(self.metric, self.value, self.source, self.timestamp)
 
     @property
     def metric(self):
@@ -61,6 +66,14 @@ class Measurement(object):
     def timestamp(self, timestamp):
         self._timestamp = timestamp
 
+    @property
+    def properties(self):
+        return self._properties
+
+    @properties.setter
+    def properties(self, properties):
+        self._properties = properties
+
 
 def serialize_instance(obj):
     d = []
@@ -68,4 +81,23 @@ def serialize_instance(obj):
     d.append(obj.metric)
     d.append(obj.value)
     d.append(obj.timestamp)
+    d.append(obj.properties)
     return d
+
+
+def measurement_get_handle_results(api_result, context):
+    logging.debug("measurement_get_handle_results")
+    # Only process if we get HTTP result of 200
+    measurements = None
+    metric = context
+    if api_result.status_code == requests.codes.ok:
+        results = json.loads(api_result.text)
+        measurements = []
+        for aggregate in results['result']['aggregates']['key']:
+            timestamp = aggregate[0][0]
+            for row in aggregate[1]:
+                measurements.append(Measurement(metric=metric,
+                                                source=row[0],
+                                                value=row[1],
+                                                timestamp=timestamp))
+    return measurements
