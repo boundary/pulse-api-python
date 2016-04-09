@@ -12,10 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import logging
+import requests
+import json
+
+
+def event_create_good_response(status_code):
+    """
+    Determines what status codes represent a good response from an API call.
+    """
+    return status_code == requests.codes.created
 
 
 class BaseEvent(object):
-
     def __init__(self, *args, **kwargs):
         self._created_at = kwargs['created_at'] if 'created_at' in kwargs else None
         self._event_id = kwargs['event_id'] if 'event_id' in kwargs else None
@@ -32,6 +41,39 @@ class BaseEvent(object):
         self._title = kwargs['title'] if 'title' in kwargs else None
 
         self._received_at = kwargs['received_at'] if 'received_at' in kwargs else None
+
+    def __str__(self):
+        return self.__repr__()
+
+    def __repr__(self):
+        return "{0}(created_at={1}" \
+               ", event_id={2}" \
+               ", fingerprint_fields='{3}'" \
+               ", id={4}" \
+               ", message='{5}'" \
+               ", properties={6}" \
+               ", {7}" \
+               ", sender='{8}'" \
+               ", severity='{9}'" \
+               ", status='{10}'" \
+               ", tags='{11}'" \
+               ", tenant_id={12}" \
+               ", title={13}" \
+               ")".format(
+                self.__class__.__name__,
+                self._created_at,
+                self._event_id,
+                self._fingerprint_fields,
+                self._id,
+                self._message,
+                self._properties,
+                self._source.__repr__() if self._source is not None else None,
+                self._sender,
+                self._severity,
+                self._status,
+                self._tags,
+                self._tenant_id,
+                self._title)
 
     @property
     def created_at(self):
@@ -91,13 +133,11 @@ class BaseEvent(object):
 
 
 class RawEvent(BaseEvent):
-
     def __init__(self, *args, **kwargs):
         super(RawEvent, self).__init__(*args, **kwargs)
 
 
 class Event(BaseEvent):
-
     def __init__(self, *args, **kwargs):
         super(Event, self).__init__(*args, **kwargs)
         self._id = None
@@ -108,12 +148,41 @@ class Event(BaseEvent):
 
 
 def serialize_instance(obj):
-    d = []
-    d.append(obj.source)
-    d.append(obj.metric)
-    d.append(obj.value)
-    d.append(obj.timestamp)
-    d.append(obj.properties)
+    d = {}
+    print(obj)
+    if obj.created_at is not None:
+        d['createdAt'] = obj.created_at
+    if obj.title is not None:
+        d['title'] = obj.title
+    if obj.source is not None:
+        d['source'] = obj.source.serialize()
     return d
 
 
+def event_create_handle_results(api_result, context=None):
+    # Only process if we get HTTP result of 200
+    result = None
+    if api_result.status_code == requests.codes.created and len(api_result.text) > 0:
+        result = json.loads(api_result.text)
+    return result
+
+
+def event_get_handle_results(api_result, context=None):
+    logging.debug("event_get_handle_results")
+    events = None
+    # Only process if we get HTTP result of 200
+    if api_result.status_code == requests.codes.ok:
+        results = json.loads(api_result.text)
+        events = []
+        for event in results['results']:
+            events.append(Event(fingerprint_fiels=event['fingerprintFields'],
+                                first_seen_at=event['firstSeenAt'],
+                                id=event['id'],
+                                last_seen_at=event['lastSeenAt'],
+                                properties=event['properties'],
+                                severity=event['severity'],
+                                status=event['status'],
+                                times_seen=event['timesSeen'],
+                                title=event['title']))
+
+    return events

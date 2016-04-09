@@ -22,6 +22,13 @@ from tspapi import HTTPResponseError
 import six.moves.urllib.parse as urllib
 
 
+def _good_response(status_code):
+    """
+    Determines what status codes represent a good response from an API call.
+    """
+    return status_code == requests.codes.ok
+
+
 def _handle_api_results(api_result, context=None):
     result = None
     # Only process if we get HTTP result of 200
@@ -98,16 +105,12 @@ class ApiCall(object):
         """
         return requests.put(self._url, data=self._data, headers=self._headers, auth=(self._email, self._api_token))
 
-    def _good_response(self, status_code):
-        """
-        Determines what status codes represent a good response from an API call.
-        """
-        return status_code == requests.codes.ok
+
 
     def _form_url(self):
         return "{0}://{1}/{2}{3}".format(self._scheme, self._api_host, self._path, self._get_url_parameters())
 
-    def _call_api(self):
+    def _call_api(self, good_response):
         """
         Make an API call to get the metric definition
         """
@@ -122,7 +125,7 @@ class ApiCall(object):
 
         result = self._methods[self._method]()
 
-        if not self._good_response(result.status_code):
+        if not good_response(result.status_code):
             logging.error(self._url)
             logging.error(self._method)
             logging.error(self._headers)
@@ -132,7 +135,7 @@ class ApiCall(object):
             raise HTTPResponseError(result.status_code, result.text)
         self._api_result = result
 
-    def _api_call(self, handle_results=_handle_api_results, context=None):
-        self._call_api()
+    def _api_call(self, handle_results=_handle_api_results, good_response=_good_response, context=None):
+        self._call_api(good_response=good_response)
         return handle_results(self._api_result, context)
 

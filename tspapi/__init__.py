@@ -3,6 +3,7 @@ from tspapi.api_exception import ConnectionError
 from tspapi.api_exception import HTTPResponseError
 from tspapi.measurement import Measurement
 from tspapi.source import Source
+from tspapi.source import Sender
 from tspapi.event import RawEvent
 from tspapi.event import Event
 from tspapi.metric import Metric

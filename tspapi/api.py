@@ -19,6 +19,7 @@ import json
 from tspapi.api_call import ApiCall
 import tspapi.measurement as measurement
 import tspapi.metric
+import tspapi.event
 from datetime import datetime
 
 
@@ -202,14 +203,78 @@ class API(ApiCall):
     def metric_update(self):
         pass
 
-    def event_create(self):
-        pass
+    def event_create(self,
+                     created_at=None,
+                     fingerprintFields=None,
+                     message=None,
+                     properties=None,
+                     sender=None,
+                     severity='INFO',
+                     source=None,
+                     status='OPEN',
+                     tags=None,
+                     title=None,
+                     ):
+        """
+        Creates an event in an account
+        :param created_at:
+        :param fingerprintFields:
+        :param message:
+        :param properties:
+        :param sender:
+        :param severity:
+        :param source:
+        :param status:
+        :param tags:
+        :param title:
+        :return:
+        """
+
+        if title is None:
+            raise ValueError('title not specified')
+
+        if source is None:
+            raise ValueError('source not specified')
+
+        if fingerprintFields is None:
+            raise ValueError('fingerprintFields not specified')
+        payload = {}
+
+        if created_at is not None:
+            payload['createdAt'] = created_at
+
+        if fingerprintFields is not None:
+            payload['fingerprintFields'] = fingerprintFields
+
+        if message is not None:
+            payload['message'] = message
+
+        if source is not None:
+            payload['source'] = {}
+            payload['source']['ref'] = source.ref
+            payload['source']['type'] = source.type
+            payload['source']['name'] = source.name
+
+        if title is not None:
+            payload['title'] = title
+
+        self._method = 'POST'
+        self._data = json.dumps(payload)
+        self._headers = {'Content-Type': 'application/json', "Accept": "application/json"}
+        self._path = 'v1/events'
+        self._api_call(handle_results=tspapi.event.event_create_handle_results,
+                       good_response=tspapi.event.event_create_good_response)
 
     def event_get(self):
         pass
 
     def event_list(self):
-        pass
+        self._method = 'GET'
+        self._data = None
+        self._headers = {"Accept": "application/json"}
+        self._path = "v1/events"
+        result = self._api_call(handle_results=tspapi.event.event_get_handle_results)
+        return result
 
     def hostgroup_create(self, name, sources=[]):
 

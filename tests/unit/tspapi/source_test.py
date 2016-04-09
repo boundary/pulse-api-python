@@ -17,6 +17,8 @@
 
 from unittest import TestCase
 from tspapi import Source
+import tspapi.source
+import json
 
 
 class SourceTest(TestCase):
@@ -42,27 +44,37 @@ class SourceTest(TestCase):
 
     def test_ref(self):
         ref = 'bar'
-        source = Source()
-        source.ref = ref
+        source = Source(ref=ref)
         self.assertEqual(source.ref, ref)
 
     def test_type(self):
         _type = 'blah'
-        source = Source()
-        source.type = _type
+        source = Source(_type=_type)
         self.assertEqual(source.type, _type)
 
     def test_name(self):
         name = 'hello'
-        source = Source()
-        source.name = name
+        source = Source(name=name)
         self.assertEqual(source.name, name)
 
     def test_properties(self):
         properties = {'red': 1, 'blue': 'foo', 'green': 1.0}
-        source = Source()
-        source.properties = properties
+        source = Source(properties=properties)
         self.assertEqual(1, properties['red'])
         self.assertEqual('foo', properties['blue'])
         self.assertEqual(1.0, properties['green'])
+
+    def test_to_json(self):
+        ref = 'device'
+        _type = 'blah'
+        name = 'hello'
+        properties = {'red': 1, 'blue': 'foo', 'green': 1.0}
+        source = Source(ref=ref, _type=_type, name=name, properties=properties)
+
+        output = json.dumps(source, sort_keys=True, default=tspapi.source.serialize_instance)
+        expected = '{"name": "hello", "properties": {"blue": "foo", "green": 1.0, "red": 1}, "ref": "device", "type": "blah"}'
+        self.assertEqual(expected, output)
+
+
+
 
