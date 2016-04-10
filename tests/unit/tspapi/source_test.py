@@ -17,6 +17,7 @@
 
 from unittest import TestCase
 from tspapi import Source
+from tspapi import Sender
 import tspapi.source
 import json
 
@@ -75,6 +76,63 @@ class SourceTest(TestCase):
         expected = '{"name": "hello", "properties": {"blue": "foo", "green": 1.0, "red": 1}, ' + \
                    '"ref": "device", "type": "blah"}'
         self.assertEqual(expected, output)
+
+
+class SenderTest(TestCase):
+
+    def test_default_constructor(self):
+        sender = Sender()
+        self.assertIsNone(sender.ref)
+        self.assertIsNone(sender.type)
+        self.assertIsNone(sender.name)
+        self.assertIsNone(sender.properties)
+
+    def test_constructor_args(self):
+        ref = 'foo'
+        _type = 'host'
+        name = 'bar'
+        properties = {'red': 1, 'blue': 'foo', 'green': 1.0}
+        sender = Sender(ref=ref, _type=_type, name=name, properties=properties)
+
+        self.assertEqual(sender.ref, ref)
+        self.assertEqual(sender.type, _type)
+        self.assertEqual(sender.name, name)
+        self.assertEqual(sender.properties, properties)
+
+    def test_ref(self):
+        ref = 'bar'
+        sender = Sender(ref=ref)
+        self.assertEqual(sender.ref, ref)
+
+    def test_type(self):
+        _type = 'blah'
+        sender = Sender(_type=_type)
+        self.assertEqual(sender.type, _type)
+
+    def test_name(self):
+        name = 'hello'
+        sender = Sender(name=name)
+        self.assertEqual(sender.name, name)
+
+    def test_properties(self):
+        properties = {'red': 1, 'blue': 'foo', 'green': 1.0}
+        sender = Sender(properties=properties)
+        self.assertEqual(1, properties['red'])
+        self.assertEqual('foo', properties['blue'])
+        self.assertEqual(1.0, properties['green'])
+
+    def test_to_json(self):
+        ref = 'device'
+        _type = 'blah'
+        name = 'hello'
+        properties = {'red': 1, 'blue': 'foo', 'green': 1.0}
+        sender = Sender(ref=ref, _type=_type, name=name, properties=properties)
+
+        output = json.dumps(sender, sort_keys=True, default=tspapi.source.serialize_instance)
+        expected = '{"name": "hello", "properties": {"blue": "foo", "green": 1.0, "red": 1}, ' + \
+                   '"ref": "device", "type": "blah"}'
+        self.assertEqual(expected, output)
+
 
 
 
