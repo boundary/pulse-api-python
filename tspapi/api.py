@@ -20,6 +20,8 @@ from tspapi.api_call import ApiCall
 import tspapi.measurement as measurement
 import tspapi.metric
 import tspapi.event
+from tspapi.source import Source
+from tspapi.source import Sender
 from datetime import datetime
 
 
@@ -44,7 +46,12 @@ class API(ApiCall):
 
         return api_host, email, api_token
 
-    def measurement_create(self, metric, value, source=None, timestamp=None, properties=None):
+    def measurement_create(self,
+                           metric=None,
+                           value=None,
+                           source=None,
+                           timestamp=None,
+                           properties=None):
         """
         Creates a new measurement in TrueSight Pulse instance.
 
@@ -54,6 +61,12 @@ class API(ApiCall):
         :param timestamp: Time of the occurrence of the measurement
         :return: None
         """
+
+        if metric is None:
+            raise ValueError('metrics not specified')
+
+        if value is None:
+            raise ValueError('value not specified')
         self._method = 'POST'
         payload = {}
         payload['metric'] = metric
@@ -200,8 +213,48 @@ class API(ApiCall):
         result = self._api_call(handle_results=tspapi.metric.metric_batch_get_handle_results)
         return result
 
-    def metric_update(self):
-        pass
+    def metric_update(self,
+                      name=None,
+                      display_name=None,
+                      display_name_short=None,
+                      description=None,
+                      default_aggregate=None,
+                      default_resolution=None,
+                      unit=None,
+                      is_disabled=None,
+                      _type=None):
+
+        payload = {}
+        if display_name is not None:
+            payload['displayName'] = display_name
+
+        if display_name_short is not None:
+            payload['displayNameShort'] = display_name_short
+
+        if description is not None:
+            payload['description'] = description
+
+        if default_aggregate is not None:
+            payload['defaultAggregate'] = default_aggregate
+
+        if default_resolution is not None:
+            payload['defaultResolutionMS'] = default_resolution
+
+        if unit is not None:
+            payload['unit'] = unit
+
+        if is_disabled is not None:
+            payload['isDisabled'] = is_disabled
+
+        if _type is not None:
+            payload['type'] = _type
+
+        self._path = "v1/metrics"
+        self._method = 'PUT'
+        self._data = json.dumps(payload)
+        self._path = "v1/metrics/{0}".format(name)
+        result = self._api_call(handle_results=tspapi.metric.metric_get_handle_results)
+        return result
 
     def event_create(self,
                      created_at=None,
@@ -249,11 +302,32 @@ class API(ApiCall):
         if message is not None:
             payload['message'] = message
 
+        if properties is not None:
+            payload['properties'] = properties
+
+        if sender is not None:
+            if not isinstance(sender, Sender):
+                raise ValueError('sender is not a Sender instance')
+            else:
+                payload['sender'] = {}
+                payload['sender']['ref'] = sender.ref
+                payload['sender']['type'] = sender.type
+                payload['sender']['name'] = sender.name
+
+        if severity is not None:
+            payload['severity'] = severity
+
         if source is not None:
-            payload['source'] = {}
-            payload['source']['ref'] = source.ref
-            payload['source']['type'] = source.type
-            payload['source']['name'] = source.name
+            if not isinstance(source, Source):
+                raise ValueError('source is not a Source instance')
+            else:
+                payload['source'] = {}
+                payload['source']['ref'] = source.ref
+                payload['source']['type'] = source.type
+                payload['source']['name'] = source.name
+
+        if status is not None:
+            payload['status'] = status
 
         if title is not None:
             payload['title'] = title

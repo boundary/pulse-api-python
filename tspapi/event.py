@@ -149,7 +149,6 @@ class Event(BaseEvent):
 
 def serialize_instance(obj):
     d = {}
-    print(obj)
     if obj.created_at is not None:
         d['createdAt'] = obj.created_at
     if obj.title is not None:

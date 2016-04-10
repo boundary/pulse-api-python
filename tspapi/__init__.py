@@ -1,4 +1,6 @@
 from __future__ import absolute_import
+from tspapi.aggregates import aggregates
+from tspapi.units import units
 from tspapi.api_exception import ConnectionError
 from tspapi.api_exception import HTTPResponseError
 from tspapi.measurement import Measurement

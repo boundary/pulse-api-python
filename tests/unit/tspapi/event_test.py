@@ -17,6 +17,7 @@
 
 from tspapi import API
 from tspapi import Source
+from tspapi import Sender
 import tspapi.event
 from unittest import TestCase
 from tspapi import RawEvent
@@ -29,6 +30,7 @@ import json
 _path = os.path.dirname(__file__)
 sys.path.append(_path)
 from api_test_utils import TestUtils
+
 
 class RawEventTest(TestCase):
 
@@ -104,6 +106,29 @@ class RawEventTest(TestCase):
         source = Source(ref='localhost', _type='host', name='bubba')
         self.api.event_create(title='Hello World', fingerprintFields=['@title'], source=source)
 
+    def test_create_event_with_sender(self):
+
+        source = Source(ref='localhost', _type='host', name='bubba')
+        sender = Sender(ref='localhost', _type='host', name='bubba')
+        self.api.event_create(title='Hello World', fingerprintFields=['@title'], source=source, sender=sender)
+
+    def test_create_bad_source(self):
+        try:
+            ref = 'Hello World'
+            self.api.event_create(title='Hello World', fingerprintFields=['@title'], source=ref)
+            self.assertTrue(False)
+        except ValueError:
+            pass
+
+    def test_create_bad_sender(self):
+        try:
+            source = Source(ref='localhost', _type='host', name='bubba')
+            ref = 'Hello World'
+            self.api.event_create(title='Hello World', fingerprintFields=['@title'], source=source, sender=ref)
+            self.assertTrue(False)
+        except ValueError:
+            pass
+
     def test_event_get(self):
         events = self.api.event_list()
         for event in events:
@@ -116,15 +141,9 @@ class RawEventTest(TestCase):
         properties = {'red': 1, 'blue': 'foo', 'green': 1.0}
         source = Source(ref=ref, _type=_type, name=name, properties=properties)
         event = RawEvent(title='Hello World', fingerprintFields=['@title'], source=source)
-        output = json.dumps(event, default=tspapi.event.serialize_instance)
-        print(output)
+        output = json.dumps(event, sort_keys=True, default=tspapi.event.serialize_instance)
+        expected = '{"source": {"name": "hello", "properties": {"blue": "foo", "green": 1.0, "red": 1}, ' + \
+                   '"ref": "device", "type": "blah"}, "title": "Hello World"}'
+        self.assertEqual(expected, output)
 
-    def test_ref(self):
-        pass
-
-    def test_type(self):
-        pass
-
-    def test_name(self):
-        pass
 

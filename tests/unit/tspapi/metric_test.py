@@ -25,6 +25,7 @@ import tspapi.metric
 import json
 import random
 import requests
+import logging
 
 _path = os.path.dirname(__file__)
 sys.path.append(_path)
@@ -53,6 +54,11 @@ class MetricTest(TestCase):
                              unit=self.unit,
                              _type=self.type,
                              is_disabled=self.is_disabled)
+
+        self.api.metric_create_batch([self.metric])
+
+    def tearDown(self):
+        self.api.metric_delete(self.metric.name)
 
     def test_minimal_constructor(self):
         name = 'FOO'
@@ -143,7 +149,7 @@ class MetricTest(TestCase):
         display_name_short = "TEST_METRIC" + TestUtils.random_string(6)
         description = TestUtils.random_string(32)
         default_aggregate = 'avg'
-        default_resolution  = 60000
+        default_resolution = 60000
         unit = 'duration'
         _type = 'FOO'
         is_disabled = True
@@ -203,6 +209,38 @@ class MetricTest(TestCase):
 
         self.api.metric_delete(name)
 
+    def test_metric_entity_too_large(self):
+        try:
+            name = 'TEST_CREATE' + TestUtils.random_string(6)
+            display_name = TestUtils.random_string(1024*1024)
+            metric = self.api.metric_create(name=name,
+                                            display_name=display_name)
+            self.assertTrue(False)
+        except HTTPResponseError as e:
+            self.assertEqual(requests.codes.request_entity_too_large, e.status_code)
+
+    def test_metric_bad_aggregate(self):
+        try:
+            name = 'TEST_CREATE' + TestUtils.random_string(6)
+            display_name = TestUtils.random_string(32)
+            metric = self.api.metric_create(name=name,
+                                            display_name=display_name,
+                                            default_aggregate='foo')
+            self.assertTrue(False)
+        except HTTPResponseError as e:
+            self.assertEqual(requests.codes.unprocessable_entity, e.status_code)
+
+    def test_metric_bad_unit(self):
+        try:
+            name = 'TEST_CREATE' + TestUtils.random_string(6)
+            display_name = TestUtils.random_string(32)
+            metric = self.api.metric_create(name=name,
+                                            display_name=display_name,
+                                            unit='foo')
+            self.assertTrue(False)
+        except HTTPResponseError as e:
+            self.assertEqual(requests.codes.unprocessable_entity, e.status_code)
+
     def test_metric_create_multiple_batch(self):
         name1 = 'TEST_CREATE_BATCH_ONE_FOOBAR' + TestUtils.random_string(6)
         name2 = 'TEST_CREATE_BATCH_TWO_FOOBAR' + TestUtils.random_string(6)
@@ -224,20 +262,20 @@ class MetricTest(TestCase):
         description3 = TestUtils.random_string(32)
         description4 = TestUtils.random_string(32)
 
-        default_aggregate1 = 'avg'
-        default_aggregate2 = 'min'
-        default_aggregate3 = 'max'
-        default_aggregate4 = 'sum'
+        default_aggregate1 = tspapi.aggregates.avg
+        default_aggregate2 = tspapi.aggregates.min
+        default_aggregate3 = tspapi.aggregates.max
+        default_aggregate4 = tspapi.aggregates.sum
 
         default_resolution1 = random.randrange(1000, 60000)
         default_resolution2 = random.randrange(1000, 60000)
         default_resolution3 = random.randrange(1000, 60000)
         default_resolution4 = random.randrange(1000, 60000)
 
-        unit1 = 'bytecount'
-        unit2 = 'duration'
-        unit3 = 'number'
-        unit4 = 'percent'
+        unit1 = tspapi.units.bytecount
+        unit2 = tspapi.units.duration
+        unit3 = tspapi.units.number
+        unit4 = tspapi.units.percent
 
         is_disabled1 = True
         is_disabled2 = False
@@ -292,57 +330,6 @@ class MetricTest(TestCase):
 
         self.assertEqual(4, len(metrics))
 
-        m = metrics[0]
-
-        self.assertEqual(name1, m.name)
-        self.assertEqual(display_name1, m.display_name)
-        self.assertEqual(display_name_short1, m.display_name_short)
-        self.assertEqual(description1, m.description)
-        self.assertEqual(default_aggregate1.upper(), m.default_aggregate)
-        self.assertEqual(default_resolution1, m.default_resolution)
-        self.assertEqual(unit1, m.unit)
-        self.assertEqual(_type1, m.type)
-        self.assertEqual(is_disabled1, m.is_disabled)
-
-        m = metrics[1]
-
-        self.assertEqual(name2, m.name)
-        self.assertEqual(display_name2, m.display_name)
-        self.assertEqual(display_name_short2, m.display_name_short)
-        self.assertEqual(description2, m.description)
-        self.assertEqual(default_aggregate2.upper(), m.default_aggregate)
-        self.assertEqual(default_resolution2, m.default_resolution)
-        self.assertEqual(unit2, m.unit)
-        self.assertEqual(_type2, m.type)
-        self.assertEqual(is_disabled2, m.is_disabled)
-
-        m = metrics[2]
-
-        self.assertEqual(name3, m.name)
-        self.assertEqual(display_name3, m.display_name)
-        self.assertEqual(display_name_short3, m.display_name_short)
-        self.assertEqual(description3, m.description)
-        self.assertEqual(default_aggregate3.upper(), m.default_aggregate)
-        self.assertEqual(default_resolution3, m.default_resolution)
-        self.assertEqual(unit3, m.unit)
-        self.assertEqual(_type3, m.type)
-        self.assertEqual(is_disabled3, m.is_disabled)
-
-        m = metrics[3]
-
-        self.assertEqual(name4, m.name)
-        self.assertEqual(display_name4, m.display_name)
-        self.assertEqual(display_name_short4, m.display_name_short)
-        self.assertEqual(description4, m.description)
-        self.assertEqual(default_aggregate4.upper(), m.default_aggregate)
-        self.assertEqual(default_resolution4, m.default_resolution)
-        self.assertEqual(unit4, m.unit)
-        self.assertEqual(_type4, m.type)
-        self.assertEqual(is_disabled4, m.is_disabled)
-
-        for m in metrics:
-            self.api.metric_delete(m.name)
-
     def test_metric_get(self):
         metrics = self.api.metric_get()
         self.assertIsNotNone(metrics)
@@ -367,4 +354,55 @@ class MetricTest(TestCase):
 
     def test_metric_update(self):
         name = 'TEST_UPDATE_' + TestUtils.random_string(6)
-        self.api.metric_create(name=name)
+        display_name = TestUtils.random_string(8)
+        display_name_short = TestUtils.random_string(16)
+        description = TestUtils.random_string(16)
+        default_aggregate = 'sum'
+        default_resolution = 60000
+        unit = 'percent'
+        is_disabled = False
+        _type = 'DEVICE'
+        self.api.metric_create(name=name,
+                               display_name=display_name,
+                               display_name_short=display_name_short,
+                               description=description,
+                               default_aggregate=default_aggregate,
+                               default_resolution=default_resolution,
+                               unit=unit,
+                               is_disabled=is_disabled,
+                               _type=_type
+                               )
+
+        display_name = TestUtils.random_string(8)
+        display_name_short = TestUtils.random_string(16)
+        description = TestUtils.random_string(16)
+        default_aggregate = 'max'
+        default_resolution = 30000
+        unit = 'duration'
+        is_disabled = True
+        _type = 'HOST'
+        metric = self.api.metric_update(name=name,
+                                        display_name=display_name,
+                                        display_name_short=display_name_short,
+                                        description=description,
+                                        default_aggregate=default_aggregate,
+                                        default_resolution=default_resolution,
+                                        unit=unit,
+                                        is_disabled=is_disabled,
+                                        _type=_type
+                                        )
+
+        self.assertEqual(name, metric.name)
+        self.assertEqual(display_name, metric.display_name)
+        self.assertEqual(display_name_short, metric.display_name_short)
+        self.assertEqual(description, metric.description)
+        self.assertEqual(default_aggregate.upper(), metric.default_aggregate)
+        self.assertEqual(default_resolution, metric.default_resolution)
+        self.assertEqual(unit, metric.unit)
+        self.assertEqual(_type, metric.type)
+        self.assertEqual(is_disabled, metric.is_disabled)
+
+        self.api.metric_delete(name)
+
+    def test_metric_batch_update(self):
+        pass
