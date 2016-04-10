@@ -262,20 +262,20 @@ class MetricTest(TestCase):
         description3 = TestUtils.random_string(32)
         description4 = TestUtils.random_string(32)
 
-        default_aggregate1 = 'avg'
-        default_aggregate2 = 'min'
-        default_aggregate3 = 'max'
-        default_aggregate4 = 'sum'
+        default_aggregate1 = tspapi.aggregates.avg
+        default_aggregate2 = tspapi.aggregates.min
+        default_aggregate3 = tspapi.aggregates.max
+        default_aggregate4 = tspapi.aggregates.sum
 
         default_resolution1 = random.randrange(1000, 60000)
         default_resolution2 = random.randrange(1000, 60000)
         default_resolution3 = random.randrange(1000, 60000)
         default_resolution4 = random.randrange(1000, 60000)
 
-        unit1 = 'bytecount'
-        unit2 = 'duration'
-        unit3 = 'number'
-        unit4 = 'percent'
+        unit1 = tspapi.units.bytecount
+        unit2 = tspapi.units.duration
+        unit3 = tspapi.units.number
+        unit4 = tspapi.units.percent
 
         is_disabled1 = True
         is_disabled2 = False
@@ -352,20 +352,20 @@ class MetricTest(TestCase):
         description3 = TestUtils.random_string(32)
         description4 = TestUtils.random_string(32)
 
-        default_aggregate1 = 'avg'
-        default_aggregate2 = 'min'
-        default_aggregate3 = 'max'
-        default_aggregate4 = 'sum'
+        default_aggregate1 = tspapi.aggregates.avg
+        default_aggregate2 = tspapi.aggregates.min
+        default_aggregate3 = tspapi.aggregates.max
+        default_aggregate4 = tspapi.aggregates.sum
 
         default_resolution1 = random.randrange(1000, 60000)
         default_resolution2 = random.randrange(1000, 60000)
         default_resolution3 = random.randrange(1000, 60000)
         default_resolution4 = random.randrange(1000, 60000)
 
-        unit1 = 'bytecount'
-        unit2 = 'duration'
-        unit3 = 'number'
-        unit4 = 'percent'
+        unit1 = tspapi.units.bytecount
+        unit2 = tspapi.units.duration
+        unit3 = tspapi.units.number
+        unit4 = tspapi.units.percent
 
         is_disabled1 = True
         is_disabled2 = False
