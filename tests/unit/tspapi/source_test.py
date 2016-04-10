@@ -72,7 +72,8 @@ class SourceTest(TestCase):
         source = Source(ref=ref, _type=_type, name=name, properties=properties)
 
         output = json.dumps(source, sort_keys=True, default=tspapi.source.serialize_instance)
-        expected = '{"name": "hello", "properties": {"blue": "foo", "green": 1.0, "red": 1}, "ref": "device", "type": "blah"}'
+        expected = '{"name": "hello", "properties": {"blue": "foo", "green": 1.0, "red": 1}, ' + \
+                   '"ref": "device", "type": "blah"}'
         self.assertEqual(expected, output)
 
 
