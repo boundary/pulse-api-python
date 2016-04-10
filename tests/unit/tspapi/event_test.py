@@ -141,9 +141,9 @@ class RawEventTest(TestCase):
         properties = {'red': 1, 'blue': 'foo', 'green': 1.0}
         source = Source(ref=ref, _type=_type, name=name, properties=properties)
         event = RawEvent(title='Hello World', fingerprintFields=['@title'], source=source)
-        output = json.dumps(event, default=tspapi.event.serialize_instance)
-        expected = '{"source": {"type": "blah", "ref": "device", "name": "hello", ' + \
-                   '"properties": {"blue": "foo", "green": 1.0, "red": 1}}, "title": "Hello World"}'
+        output = json.dumps(event, sort_keys=True, default=tspapi.event.serialize_instance)
+        expected = '{"source": {"name": "hello", "properties": {"blue": "foo", "green": 1.0, "red": 1}, ' + \
+                   '"ref": "device", "type": "blah"}, "title": "Hello World"}'
         self.assertEqual(expected, output)
 
 
