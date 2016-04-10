@@ -20,6 +20,8 @@ from tspapi.api_call import ApiCall
 import tspapi.measurement as measurement
 import tspapi.metric
 import tspapi.event
+from tspapi.source import Source
+from tspapi.source import Sender
 from datetime import datetime
 
 
@@ -300,11 +302,32 @@ class API(ApiCall):
         if message is not None:
             payload['message'] = message
 
+        if properties is not None:
+            payload['properties'] = properties
+
+        if sender is not None:
+            if not isinstance(sender, Sender):
+                raise ValueError('sender is not a Sender instance')
+            else:
+                payload['sender'] = {}
+                payload['sender']['ref'] = sender.ref
+                payload['sender']['type'] = sender.type
+                payload['sender']['name'] = sender.name
+
+        if severity is not None:
+            payload['severity'] = severity
+
         if source is not None:
-            payload['source'] = {}
-            payload['source']['ref'] = source.ref
-            payload['source']['type'] = source.type
-            payload['source']['name'] = source.name
+            if not isinstance(source, Source):
+                raise ValueError('source is not a Source instance')
+            else:
+                payload['source'] = {}
+                payload['source']['ref'] = source.ref
+                payload['source']['type'] = source.type
+                payload['source']['name'] = source.name
+
+        if status is not None:
+            payload['status'] = status
 
         if title is not None:
             payload['title'] = title
