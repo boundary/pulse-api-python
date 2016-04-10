@@ -5,13 +5,13 @@ from requests.structures import LookupDict
 _aggregates = {
 
     # Informational.
-    'AVG': ('AVG',),
-    'MAX': ('MAX',),
-    'MIN': ('MIN',),
-    'SUM': ('SUM',),
+    'avg': ('avg',),
+    'min': ('min',),
+    'max': ('max',),
+    'sum': ('sum',),
 }
 
-aggregates = LookupDict(name='status_codes')
+aggregates = LookupDict(name='aggregates')
 
 for code, titles in _aggregates.items():
     for title in titles:

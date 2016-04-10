@@ -22,13 +22,13 @@ import tspapi
 class AggregateTest(TestCase):
 
     def test_avg(self):
-        self.assertEqual('AVG', tspapi.aggregates.AVG)
+        self.assertEqual('avg', tspapi.aggregates.avg)
 
     def test_min(self):
-        self.assertEqual('MIN', tspapi.aggregates.MIN)
+        self.assertEqual('min', tspapi.aggregates.min)
 
     def test_max(self):
-        self.assertEqual('MAX', tspapi.aggregates.MAX)
+        self.assertEqual('max', tspapi.aggregates.max)
 
     def test_sum(self):
-        self.assertEqual('SUM', tspapi.aggregates.SUM)
+        self.assertEqual('sum', tspapi.aggregates.sum)
