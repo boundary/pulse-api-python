@@ -49,6 +49,22 @@ class Source(object):
 
         return "".join(s)
 
+    @staticmethod
+    def dict_to_source(source):
+        ref = None
+        _type = None
+        name = None
+        propoerties = None
+        if 'ref' in source:
+            ref = source['ref']
+        if 'type' in source:
+            _type = source['type']
+        if 'name' in source:
+            name = source['name']
+        if 'properties' in source:
+            properties = source['properties']
+        return Source(ref=ref, _type=_type, name=name, properties=properties)
+
     @property
     def ref(self):
         return self._ref
