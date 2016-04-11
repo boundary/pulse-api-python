@@ -23,6 +23,7 @@ import tspapi.event
 from tspapi.source import Source
 from tspapi.source import Sender
 from datetime import datetime
+from dateutil import parser
 
 
 class API(ApiCall):
@@ -45,6 +46,33 @@ class API(ApiCall):
             api_host = 'api.truesight.bmc.com'
 
         return api_host, email, api_token
+
+    @staticmethod
+    def _parse_time_date(s):
+        """
+        Parse the time indicated by the string or datetime object.
+
+        1) Coerce to int
+        2) Try
+        Attempt to parse the passed in string into a valid datetime.
+        If we get a parse error then assume the string is an epoch time
+        and convert to a datetime.
+        """
+        timestamp = None
+        if isinstance(s, int):
+            timestamp = int(s)
+        elif isinstance(s, str):
+            try:
+                d = parser.parse(s)
+                timestamp = int(d.strftime('%s'))
+            except TypeError:
+                    pass
+        elif isinstance(s, datetime):
+            timestamp = int(s.strftime('%s'))
+        else:
+            raise ValueError('Unable to parse a timestamp')
+
+        return timestamp
 
     def measurement_create(self,
                            metric=None,
@@ -258,7 +286,7 @@ class API(ApiCall):
 
     def event_create(self,
                      created_at=None,
-                     fingerprintFields=None,
+                     fingerprint_fields=None,
                      message=None,
                      properties=None,
                      sender=None,
@@ -271,7 +299,7 @@ class API(ApiCall):
         """
         Creates an event in an account
         :param created_at:
-        :param fingerprintFields:
+        :param fingerprint_fields:
         :param message:
         :param properties:
         :param sender:
@@ -289,15 +317,16 @@ class API(ApiCall):
         if source is None:
             raise ValueError('source not specified')
 
-        if fingerprintFields is None:
-            raise ValueError('fingerprintFields not specified')
+        if fingerprint_fields is None:
+            raise ValueError('fingerprint fields not specified')
+
         payload = {}
 
         if created_at is not None:
-            payload['createdAt'] = created_at
+            payload['createdAt'] = API._parse_time_date(created_at)
 
-        if fingerprintFields is not None:
-            payload['fingerprintFields'] = fingerprintFields
+        if fingerprint_fields is not None:
+            payload['fingerprintFields'] = fingerprint_fields
 
         if message is not None:
             payload['message'] = message
@@ -328,6 +357,9 @@ class API(ApiCall):
 
         if status is not None:
             payload['status'] = status
+
+        if tags is not None:
+            payload['tags'] = tags
 
         if title is not None:
             payload['title'] = title

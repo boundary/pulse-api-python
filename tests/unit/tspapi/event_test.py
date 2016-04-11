@@ -104,18 +104,36 @@ class RawEventTest(TestCase):
 
     def test_create_event(self):
         source = Source(ref='localhost', _type='host', name='bubba')
-        self.api.event_create(title='Hello World', fingerprintFields=['@title'], source=source)
+        self.api.event_create(title='Hello World', fingerprint_fields=['@title'], source=source)
+
+    def test_create_event_with_date(self):
+        source = Source(ref='localhost', _type='host', name='bubba')
+        dt = datetime.now()
+        self.api.event_create(created_at=dt, title='Hello World', fingerprint_fields=['@title'], source=source)
+
+    def test_create_event_with_finger_print_fields(self):
+        fingerprint_fields = ['@message']
+        source = Source(ref='localhost', _type='host', name='bubba')
+        message = 'hello' + TestUtils.random_string(6)
+        dt = datetime.now()
+        self.api.event_create(message=message, created_at=dt, title='Hello World', fingerprint_fields=fingerprint_fields, source=source)
+
+    def test_create_event_with_properties(self):
+        source = Source(ref='localhost', _type='host', name='bubba')
+        title = 'sending tags'
+        properties = {"foo": "bar"}
+        self.api.event_create(title=title, fingerprint_fields=['@title'], source=source, properties=properties)
 
     def test_create_event_with_sender(self):
 
         source = Source(ref='localhost', _type='host', name='bubba')
         sender = Sender(ref='localhost', _type='host', name='bubba')
-        self.api.event_create(title='Hello World', fingerprintFields=['@title'], source=source, sender=sender)
+        self.api.event_create(title='Hello World', fingerprint_fields=['@title'], source=source, sender=sender)
 
     def test_create_bad_source(self):
         try:
             ref = 'Hello World'
-            self.api.event_create(title='Hello World', fingerprintFields=['@title'], source=ref)
+            self.api.event_create(title='Hello World', fingerprint_fields=['@title'], source=ref)
             self.assertTrue(False)
         except ValueError:
             pass
@@ -124,7 +142,7 @@ class RawEventTest(TestCase):
         try:
             source = Source(ref='localhost', _type='host', name='bubba')
             ref = 'Hello World'
-            self.api.event_create(title='Hello World', fingerprintFields=['@title'], source=source, sender=ref)
+            self.api.event_create(title='Hello World', fingerprint_fields=['@title'], source=source, sender=ref)
             self.assertTrue(False)
         except ValueError:
             pass
@@ -140,10 +158,48 @@ class RawEventTest(TestCase):
         name = 'hello'
         properties = {'red': 1, 'blue': 'foo', 'green': 1.0}
         source = Source(ref=ref, _type=_type, name=name, properties=properties)
-        event = RawEvent(title='Hello World', fingerprintFields=['@title'], source=source)
+        event = RawEvent(title='Hello World', fingerprint_fields=['@title'], source=source)
         output = json.dumps(event, sort_keys=True, default=tspapi.event.serialize_instance)
         expected = '{"source": {"name": "hello", "properties": {"blue": "foo", "green": 1.0, "red": 1}, ' + \
                    '"ref": "device", "type": "blah"}, "title": "Hello World"}'
         self.assertEqual(expected, output)
+
+    def test_parse_date_datetime(self):
+        d = datetime.now()
+        expected = int(d.strftime('%s'))
+        timestamp = API._parse_time_date(d)
+        self.assertEqual(expected, timestamp)
+
+    def test_parse_date_epoch(self):
+        expected = int(datetime.now().strftime('%s'))
+        timestamp = API._parse_time_date(expected)
+        self.assertEqual(expected, timestamp)
+
+    def test_parse_date_ymd(self):
+        s = '2015-06-30'
+        timestamp = API._parse_time_date(s)
+        expected = int(datetime(2015, 6, 30).strftime('%s'))
+        self.assertEqual(expected, timestamp)
+
+    def test_parse_date_ymd_hms24(self):
+        s = '2014-06-30 14:27:16'
+        timestamp = API._parse_time_date(s)
+        expected = int(datetime(2014, 6, 30, 14, 27, 16).strftime('%s'))
+        self.assertEqual(expected, timestamp)
+
+    def test_parse_date_ymd_hms(self):
+        s = '2014-06-30 02:27:16PM'
+        timestamp = API._parse_time_date(s)
+        expected = int(datetime(2014, 6, 30, 14, 27, 16).strftime('%s'))
+        self.assertEqual(expected, timestamp)
+
+    def test_parse_date_bad_date_format(self):
+        try:
+            s = 'foobar'
+            timestamp = API._parse_time_date(s)
+            self.assertTrue(False)
+        except ValueError:
+            pass
+
 
 
