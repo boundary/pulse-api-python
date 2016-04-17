@@ -112,6 +112,13 @@ class API(ApiCall):
 
     def measurement_create_batch(self, measurements):
         """
+        Creates measurements from an array of Measurements instances.
+
+        measurements = []
+        measurements.append(Measurement())
+        measurements.append(Measurement())
+        api.measurement_create_batch(measurements)
+
         :param measurements: List of measurements
         :return: None
         """
