@@ -375,6 +375,10 @@ class API(ApiCall):
         pass
 
     def event_list(self):
+        """
+        Lists the events in your account
+        :return:
+        """
         self._method = 'GET'
         self._data = None
         self._headers = {"Accept": "application/json"}
@@ -383,7 +387,12 @@ class API(ApiCall):
         return result
 
     def hostgroup_create(self, name, sources=[]):
-
+        """
+        Creates a host group or filter
+        :param name: Name of the host group/filter
+        :param sources: An array of sources to included in the host group/filter
+        :return:
+        """
         payload = {}
         payload['name'] = name
         payload['hostnames'] = sources
