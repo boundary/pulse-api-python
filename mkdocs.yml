@@ -1,0 +1,12 @@
+site_name: BMC TrueSight Pulse
+theme: united
+pages:
+#- Home: index.md
+- Getting Started:
+   - Introduction: 'index.md'
+   - Installation: 'installation.md'
+   - Using: 'using.md'
+- API Reference:
+   - Events: 'api/events.md'
+   - Metrics: 'api/metrics.md'
+   - Measurements: 'api/measurements.md'
