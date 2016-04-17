@@ -13,6 +13,7 @@
 # limitations under the License.
 #
 import logging
+from pprint import pprint
 from tspapi import Source
 from tspapi import Sender
 import requests
@@ -183,7 +184,15 @@ def event_get_handle_results(api_result, context=None):
         print(api_result.text)
         results = json.loads(api_result.text)
         events = []
-        for event in results['items']:
+
+        # Regression in API changed 'results' to 'items'
+        # check to handle both
+        if 'items' in results:
+            results_key = 'items'
+        else:
+            results_key = 'results'
+
+        for event in results[results_key]:
             source = Source.dict_to_source(event['source'])
             sender = None
             if 'sender' in event:
