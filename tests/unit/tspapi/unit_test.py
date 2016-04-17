@@ -22,13 +22,13 @@ import tspapi
 class UnitTest(TestCase):
 
     def test_bytecount(self):
-        self.assertEqual('bytecount', tspapi.units.bytecount)
+        self.assertEqual('bytecount', tspapi.units.BYTECOUNT)
 
     def test_duration(self):
-        self.assertEqual('duration', tspapi.units.duration)
+        self.assertEqual('duration', tspapi.units.DURATION)
 
     def test_number(self):
-        self.assertEqual('number', tspapi.units.number)
+        self.assertEqual('number', tspapi.units.NUMBER)
 
     def test_percent(self):
-        self.assertEqual('percent', tspapi.units.percent)
+        self.assertEqual('percent', tspapi.units.PERCENT)
