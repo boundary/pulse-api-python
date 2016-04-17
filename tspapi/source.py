@@ -54,7 +54,7 @@ class Source(object):
         ref = None
         _type = None
         name = None
-        propoerties = None
+        properties = None
         if 'ref' in source:
             ref = source['ref']
         if 'type' in source:
