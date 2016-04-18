@@ -102,7 +102,7 @@ class API(ApiCall):
         if source is not None:
             payload['source'] = source
         if timestamp is not None:
-            payload['timestamp'] = int(timestamp)
+            payload['timestamp'] = API._parse_time_date(timestamp)
         if properties is not None:
             payload['metadata'] = properties
         self._data = json.dumps(payload, sort_keys=True)
