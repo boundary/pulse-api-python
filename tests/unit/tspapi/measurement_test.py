@@ -60,14 +60,14 @@ class MeasurementTest(TestCase):
         metric_id = 'CPU'
         value = 0.75
         source = 'API_TEST_SOURCE'
-        timestamp = datetime.now().strftime('%s')
+        timestamp = int(datetime.now().strftime('%s'))
         self.api.measurement_create(metric_id, value, source, timestamp)
 
     def test_measurement_create_with_properties(self):
         metric_id = 'CPU'
         value = 0.75
         source = 'API_TEST_SOURCE'
-        timestamp = datetime.now().strftime('%s')
+        timestamp = int(datetime.now().strftime('%s'))
         properties = {"app_id": "red", "source_type": "blue", "origin": "green"}
         self.api.measurement_create(metric=metric_id, value=value, source=source,
                                     timestamp=timestamp, properties=properties)
