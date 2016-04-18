@@ -3,7 +3,7 @@ BMC TrueSight Pulse API for Python
 
 TrueSight Pulse API for Python provides bindings for the python language
 
-Visit [http://boundary.github.io/pulse-api-python](http://boundary.github.io/pulse-api-python) for installation and usage instructions.
+Visit [http://boundary.github.io/pulse-api-python](http://boundary.github.io/pulse-api-python) for documentation.
 
 
 [![Build Status](https://travis-ci.org/boundary/pulse-api-python.svg?branch=master)](https://travis-ci.org/boundary/pulse-api-python)
