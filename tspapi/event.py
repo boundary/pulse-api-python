@@ -13,6 +13,9 @@
 # limitations under the License.
 #
 import logging
+from pprint import pprint
+from tspapi import Source
+from tspapi import Sender
 import requests
 import json
 
@@ -21,7 +24,7 @@ def event_create_good_response(status_code):
     """
     Determines what status codes represent a good response from an API call.
     """
-    return status_code == requests.codes.created
+    return status_code == requests.codes.created or status_code == requests.codes.accepted
 
 
 class BaseEvent(object):
@@ -47,9 +50,9 @@ class BaseEvent(object):
 
     def __repr__(self):
         return "{0}(created_at={1}" \
-               ", event_id={2}" \
+               ", event_id='{2}'" \
                ", fingerprint_fields='{3}'" \
-               ", id={4}" \
+               ", id='{4}'" \
                ", message='{5}'" \
                ", properties={6}" \
                ", {7}" \
@@ -140,11 +143,17 @@ class RawEvent(BaseEvent):
 class Event(BaseEvent):
     def __init__(self, *args, **kwargs):
         super(Event, self).__init__(*args, **kwargs)
-        self._id = None
+        self._id = kwargs['id'] if 'id' in kwargs else None
+        self._times_seen = kwargs['times_seen'] if 'times_seen' in kwargs else None
 
     @property
     def id(self):
         return self._id
+
+    @property
+    def times_seen(self):
+        return self._times_seen
+
 
 
 def serialize_instance(obj):
@@ -161,7 +170,8 @@ def serialize_instance(obj):
 def event_create_handle_results(api_result, context=None):
     # Only process if we get HTTP result of 200
     result = None
-    if api_result.status_code == requests.codes.created and len(api_result.text) > 0:
+    if (api_result.status_code == requests.codes.created or
+        api_result.status_code == requests.codes.accepted) and len(api_result.text) > 0:
         result = json.loads(api_result.text)
     return result
 
@@ -171,16 +181,41 @@ def event_get_handle_results(api_result, context=None):
     events = None
     # Only process if we get HTTP result of 200
     if api_result.status_code == requests.codes.ok:
+        print(api_result.text)
         results = json.loads(api_result.text)
         events = []
-        for event in results['results']:
-            events.append(Event(fingerprint_fiels=event['fingerprintFields'],
+
+        # Regression in API changed 'results' to 'items'
+        # check to handle both
+        if 'items' in results:
+            results_key = 'items'
+        else:
+            results_key = 'results'
+
+        for event in results[results_key]:
+            source = Source.dict_to_source(event['source'])
+            sender = None
+            if 'sender' in event:
+                sender = Source.dict_to_source(event['sender'])
+            status = None
+            if 'status' in event:
+                status = event['status']
+            properties = None
+            if 'properties' in event:
+                properties = event['properties']
+            severity = None
+            if 'severity' in event:
+                severity = event['severity']
+            events.append(Event(fingerprint_fields=event['fingerprintFields'],
                                 first_seen_at=event['firstSeenAt'],
                                 id=event['id'],
                                 last_seen_at=event['lastSeenAt'],
-                                properties=event['properties'],
-                                severity=event['severity'],
-                                status=event['status'],
+                                properties=properties,
+                                sender=sender,
+                                severity=severity,
+                                source=source,
+                                status=status,
+                                tenant_id=['tenantId'],
                                 times_seen=event['timesSeen'],
                                 title=event['title']))
 

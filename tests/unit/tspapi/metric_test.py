@@ -21,6 +21,8 @@ from unittest import TestCase
 from tspapi import API
 from tspapi import Metric
 from tspapi import HTTPResponseError
+from tspapi import aggregates
+from tspapi import units
 import tspapi.metric
 import json
 import random
@@ -40,9 +42,9 @@ class MetricTest(TestCase):
         self.display_name = 'green'
         self.display_name_short = 'blue'
         self.description = 'magenta'
-        self.default_aggregate = 'sum'
+        self.default_aggregate = aggregates.SUM
         self.default_resolution = 60000
-        self.unit = 'duration'
+        self.unit = units.DURATION
         self.type = 'FOOBAR'
         self.is_disabled = False
         self.metric = Metric(name=self.name,
@@ -68,9 +70,9 @@ class MetricTest(TestCase):
         self.assertEqual(name, m.display_name)
         self.assertEqual(name, m.display_name_short)
         self.assertEqual('', m.description)
-        self.assertEqual(m.default_aggregate, 'avg')
+        self.assertEqual(m.default_aggregate, aggregates.AVG)
         self.assertEqual(m.default_resolution, 1000)
-        self.assertEqual(m.unit, 'number')
+        self.assertEqual(m.unit, units.NUMBER)
         self.assertIsNone(m.type)
 
     def test_constructor_arguments(self):
@@ -148,9 +150,9 @@ class MetricTest(TestCase):
         display_name = "TEST_METRIC_CREATE" + TestUtils.random_string(6)
         display_name_short = "TEST_METRIC" + TestUtils.random_string(6)
         description = TestUtils.random_string(32)
-        default_aggregate = 'avg'
+        default_aggregate = aggregates.AVG
         default_resolution = 60000
-        unit = 'duration'
+        unit = units.DURATION
         _type = 'FOO'
         is_disabled = True
         metric = self.api.metric_create(name=name,
@@ -177,9 +179,9 @@ class MetricTest(TestCase):
         display_name = "BATCH" + TestUtils.random_string(6)
         display_name_short = "BATCH" + TestUtils.random_string(3)
         description = TestUtils.random_string(32)
-        default_aggregate = 'sum'
+        default_aggregate = aggregates.SUM
         default_resolution = random.randrange(1000, 60000)
-        unit = 'percent'
+        unit = units.PERCENT
         _type = 'FOO'
         is_disabled = True
 
@@ -262,20 +264,20 @@ class MetricTest(TestCase):
         description3 = TestUtils.random_string(32)
         description4 = TestUtils.random_string(32)
 
-        default_aggregate1 = tspapi.aggregates.avg
-        default_aggregate2 = tspapi.aggregates.min
-        default_aggregate3 = tspapi.aggregates.max
-        default_aggregate4 = tspapi.aggregates.sum
+        default_aggregate1 = aggregates.AVG
+        default_aggregate2 = aggregates.MIN
+        default_aggregate3 = aggregates.MAX
+        default_aggregate4 = aggregates.SUM
 
         default_resolution1 = random.randrange(1000, 60000)
         default_resolution2 = random.randrange(1000, 60000)
         default_resolution3 = random.randrange(1000, 60000)
         default_resolution4 = random.randrange(1000, 60000)
 
-        unit1 = tspapi.units.bytecount
-        unit2 = tspapi.units.duration
-        unit3 = tspapi.units.number
-        unit4 = tspapi.units.percent
+        unit1 = units.BYTECOUNT
+        unit2 = units.DURATION
+        unit3 = units.NUMBER
+        unit4 = units.PERCENT
 
         is_disabled1 = True
         is_disabled2 = False
@@ -357,9 +359,9 @@ class MetricTest(TestCase):
         display_name = TestUtils.random_string(8)
         display_name_short = TestUtils.random_string(16)
         description = TestUtils.random_string(16)
-        default_aggregate = 'sum'
+        default_aggregate = aggregates.SUM
         default_resolution = 60000
-        unit = 'percent'
+        unit = units.PERCENT
         is_disabled = False
         _type = 'DEVICE'
         self.api.metric_create(name=name,
@@ -376,9 +378,9 @@ class MetricTest(TestCase):
         display_name = TestUtils.random_string(8)
         display_name_short = TestUtils.random_string(16)
         description = TestUtils.random_string(16)
-        default_aggregate = 'max'
+        default_aggregate = aggregates.MAX
         default_resolution = 30000
-        unit = 'duration'
+        unit = units.DURATION
         is_disabled = True
         _type = 'HOST'
         metric = self.api.metric_update(name=name,

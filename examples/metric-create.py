@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 #
 # Copyright 2016 BMC Software, Inc.
 #
@@ -13,20 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-from requests.structures import LookupDict
+import tspapi
 
-_aggregates = {
+# The following assumes the following environment variables are set
+# export TSP_EMAIL='joe@example.com'
+# export TSP_API_TOKEN=<your api token>
+api = tspapi.API()
 
-    'avg': ('AVG',),
-    'min': ('MIN',),
-    'max': ('MAX',),
-    'sum': ('SUM',),
-}
+metric = api.metric_create(metric='MY_METRIC', source='MySource', value=3.14)
 
-aggregates = LookupDict(name='aggregates')
-
-for code, titles in _aggregates.items():
-    for title in titles:
-        setattr(aggregates, title, code)
-        if not title.startswith('\\'):
-            setattr(aggregates, title.upper(), code)
