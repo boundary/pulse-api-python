@@ -22,5 +22,22 @@ from datetime import datetime
 # export TSP_API_TOKEN=<your api token>
 api = tspapi.API()
 
-api.measurement_create(metric='MY_METRIC', source='MySource', value=3.14, timestamp=datetime.now())
+# Create a measurement and let the timestamp by sent by the API:
+api.measurement_create(metric='MY_METRIC',
+                       source='MySource',
+                       value=3.14)
+
+# Create a measurement and set the timestamp
+api.measurement_create(metric='MY_METRIC',
+                       source='MySource',
+                       value=9.80665,
+                       timestamp=datetime.now())
+
+# Create a measurement with properties
+properties = {"app_id": "myapp"}
+api.measurement_create(metric='MY_METRIC',
+                       source='MySource',
+                       value=22.7,
+                       timestamp=datetime.now(),
+                       properties=properties)
 
