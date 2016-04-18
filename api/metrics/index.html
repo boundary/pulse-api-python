@@ -7,14 +7,14 @@
         
         
         
-        <link rel="shortcut icon" href="./img/favicon.ico">
+        <link rel="shortcut icon" href="../../img/favicon.ico">
 
-	<title>BMC TrueSight Pulse</title>
+	<title>Metrics - BMC TrueSight Pulse</title>
 
-        <link href="./css/bootstrap-custom.min.css" rel="stylesheet">
-        <link href="./css/font-awesome-4.0.3.css" rel="stylesheet">
-        <link rel="stylesheet" href="./css/highlight.css">
-        <link href="./css/base.css" rel="stylesheet">
+        <link href="../../css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="../../css/font-awesome-4.0.3.css" rel="stylesheet">
+        <link rel="stylesheet" href="../../css/highlight.css">
+        <link href="../../css/base.css" rel="stylesheet">
 
         <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
         <!--[if lt IE 9]>
@@ -41,7 +41,7 @@
             </button>
 
             <!-- Main title -->
-            <a class="navbar-brand" href=".">BMC TrueSight Pulse</a>
+            <a class="navbar-brand" href="../..">BMC TrueSight Pulse</a>
         </div>
 
         <!-- Expanded navigation -->
@@ -50,19 +50,19 @@
             <ul class="nav navbar-nav">
             
             
-                <li class="dropdown active">
+                <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">Getting Started <b class="caret"></b></a>
                     <ul class="dropdown-menu">
                     
                         
-<li class="active">
-    <a href=".">Introduction</a>
+<li >
+    <a href="../..">Introduction</a>
 </li>
 
                     
                         
 <li >
-    <a href="using/">Using</a>
+    <a href="../../using/">Using</a>
 </li>
 
                     
@@ -71,25 +71,25 @@
             
             
             
-                <li class="dropdown">
+                <li class="dropdown active">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">API Reference <b class="caret"></b></a>
                     <ul class="dropdown-menu">
                     
                         
 <li >
-    <a href="api/events/">Events</a>
+    <a href="../events/">Events</a>
+</li>
+
+                    
+                        
+<li class="active">
+    <a href="./">Metrics</a>
 </li>
 
                     
                         
 <li >
-    <a href="api/metrics/">Metrics</a>
-</li>
-
-                    
-                        
-<li >
-    <a href="api/measurements/">Measurements</a>
+    <a href="../measurements/">Measurements</a>
 </li>
 
                     
@@ -106,13 +106,13 @@
                         <i class="fa fa-search"></i> Search
                     </a>
                 </li>
-                <li class="disabled">
-                    <a rel="next" >
+                <li >
+                    <a rel="next" href="../events/">
                         <i class="fa fa-arrow-left"></i> Previous
                     </a>
                 </li>
                 <li >
-                    <a rel="prev" href="using/">
+                    <a rel="prev" href="../measurements/">
                         Next <i class="fa fa-arrow-right"></i>
                     </a>
                 </li>
@@ -126,15 +126,68 @@
             <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
     <ul class="nav bs-sidenav">
     
-        <li class="main active"><a href="#introduction">Introduction</a></li>
+        <li class="main active"><a href="#metrics">Metrics</a></li>
+        
+            <li><a href="#metric_create">metric_create</a></li>
+        
+            <li><a href="#metric_create_batch">metric_create_batch</a></li>
+        
+            <li><a href="#metric_delete">metric_delete</a></li>
+        
+            <li><a href="#metric_get">metric_get</a></li>
+        
+            <li><a href="#metric_update">metric_update</a></li>
         
     
     </ul>
 </div></div>
             <div class="col-md-9" role="main">
 
-<h1 id="introduction">Introduction</h1>
-<p>Welcome to the TrueSight Pulse Python API</p></div>
+<h1 id="metrics">Metrics</h1>
+<p><em>Metrics</em> are</p>
+<h2 id="metric_create"><code>metric_create</code></h2>
+<pre><code>metric_create_batch(metric=None,
+                    display_name=None,
+                    display_name_short=None,
+                    description=None,
+                    default_aggregate='avg',
+                    default_resolution=1000,
+                    unit='number',
+                    disable=False)
+</code></pre>
+
+<h3 id="example">Example</h3>
+<pre><code>import tspapi
+
+api = tspapi.API()
+api.metric_create(name='Foo',
+                  display_name='Foo',
+                  display_name_Short='Foo'
+                  description='A story about foo',
+                  default_aggregate='max',
+                  default_resolution=5000,
+                  unit='percent',
+                  disabled=False)
+
+</code></pre>
+
+<h2 id="metric_create_batch"><code>metric_create_batch</code></h2>
+<p><strong>metric_create_batch(measurements)</strong></p>
+<h3 id="example_1">Example</h3>
+<h2 id="metric_delete"><code>metric_delete</code></h2>
+<h3 id="example_2">Example</h3>
+<pre><code></code></pre>
+
+<h2 id="metric_get"><code>metric_get</code></h2>
+<h3 id="example_3">Example</h3>
+<pre><code></code></pre>
+
+<h3 id="example_4">Example</h3>
+<pre><code></code></pre>
+
+<h2 id="metric_update"><code>metric_update</code></h2>
+<h3 id="example_5">Example</h3>
+<pre><code></code></pre></div>
         </div>
 
         <footer class="col-md-12">
@@ -143,12 +196,12 @@
             <center>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</center>
         </footer>
 
-        <script src="./js/jquery-1.10.2.min.js"></script>
-        <script src="./js/bootstrap-3.0.3.min.js"></script>
-        <script src="./js/highlight.pack.js"></script>
-        <script>var base_url = '.';</script>
-        <script data-main="./mkdocs/js/search.js" src="./mkdocs/js/require.js"></script>
-        <script src="./js/base.js"></script>
+        <script src="../../js/jquery-1.10.2.min.js"></script>
+        <script src="../../js/bootstrap-3.0.3.min.js"></script>
+        <script src="../../js/highlight.pack.js"></script>
+        <script>var base_url = '../..';</script>
+        <script data-main="../../mkdocs/js/search.js" src="../../mkdocs/js/require.js"></script>
+        <script src="../../js/base.js"></script>
 
         <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
             <div class="modal-dialog">

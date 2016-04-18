@@ -1,0 +1,149 @@
+{
+    "docs": [
+        {
+            "location": "/", 
+            "text": "Introduction\n\n\nWelcome to the TrueSight Pulse Python API", 
+            "title": "Introduction"
+        }, 
+        {
+            "location": "/#introduction", 
+            "text": "Welcome to the TrueSight Pulse Python API", 
+            "title": "Introduction"
+        }, 
+        {
+            "location": "/using/", 
+            "text": "Using\n\n\nThe TrueSight Pulse API for Python is easy to use and obviates the need to understand REST and JSON.\nThose already familar with Python will be generating new measurements into TrueSight Pulse in minutes.\n\n\nInstallation\n\n\n$ pip install tspapi\n\n\n\n\nExample\n\n\nFirst import the Python package that contains the API\n\n\nimport tspapi\n\n\n\n\nNext allocate an instance of \nAPI\n class. The TrueSight Pulse APIs require an e-mail\nand the API token associated with the account. Credentials can be added programmatically\nas shown here:\n\n\napi = tspapi.API(email='joe@example.com', api_tokens='api.f8843b57e9-7482')\n\n\n\n\nor omitted if you set the the \nTSP_EMAIL\n and \nTSP_API_TOKEN\n with e-mail and API token\nrespectively:\n\n\napi = tspapi.API()\n\n\n\n\nCall the api in this example the creation\n\n\nExceptions", 
+            "title": "Using"
+        }, 
+        {
+            "location": "/using/#using", 
+            "text": "The TrueSight Pulse API for Python is easy to use and obviates the need to understand REST and JSON.\nThose already familar with Python will be generating new measurements into TrueSight Pulse in minutes.", 
+            "title": "Using"
+        }, 
+        {
+            "location": "/using/#installation", 
+            "text": "$ pip install tspapi", 
+            "title": "Installation"
+        }, 
+        {
+            "location": "/using/#example", 
+            "text": "First import the Python package that contains the API  import tspapi  Next allocate an instance of  API  class. The TrueSight Pulse APIs require an e-mail\nand the API token associated with the account. Credentials can be added programmatically\nas shown here:  api = tspapi.API(email='joe@example.com', api_tokens='api.f8843b57e9-7482')  or omitted if you set the the  TSP_EMAIL  and  TSP_API_TOKEN  with e-mail and API token\nrespectively:  api = tspapi.API()  Call the api in this example the creation", 
+            "title": "Example"
+        }, 
+        {
+            "location": "/using/#exceptions", 
+            "text": "", 
+            "title": "Exceptions"
+        }, 
+        {
+            "location": "/api/events/", 
+            "text": "Events\n\n\nevent_create\n\n\nevent_get", 
+            "title": "Events"
+        }, 
+        {
+            "location": "/api/events/#events", 
+            "text": "", 
+            "title": "Events"
+        }, 
+        {
+            "location": "/api/events/#event_create", 
+            "text": "", 
+            "title": "event_create"
+        }, 
+        {
+            "location": "/api/events/#event_get", 
+            "text": "", 
+            "title": "event_get"
+        }, 
+        {
+            "location": "/api/metrics/", 
+            "text": "Metrics\n\n\nMetrics\n are\n\n\nmetric_create\n\n\nmetric_create_batch(metric=None,\n                    display_name=None,\n                    display_name_short=None,\n                    description=None,\n                    default_aggregate='avg',\n                    default_resolution=1000,\n                    unit='number',\n                    disable=False)\n\n\n\n\nExample\n\n\nimport tspapi\n\napi = tspapi.API()\napi.metric_create(name='Foo',\n                  display_name='Foo',\n                  display_name_Short='Foo'\n                  description='A story about foo',\n                  default_aggregate='max',\n                  default_resolution=5000,\n                  unit='percent',\n                  disabled=False)\n\n\n\n\n\nmetric_create_batch\n\n\nmetric_create_batch(measurements)\n\n\nExample\n\n\nmetric_delete\n\n\nExample\n\n\n\n\n\nmetric_get\n\n\nExample\n\n\n\n\n\nExample\n\n\n\n\n\nmetric_update\n\n\nExample", 
+            "title": "Metrics"
+        }, 
+        {
+            "location": "/api/metrics/#metrics", 
+            "text": "Metrics  are", 
+            "title": "Metrics"
+        }, 
+        {
+            "location": "/api/metrics/#metric_create", 
+            "text": "metric_create_batch(metric=None,\n                    display_name=None,\n                    display_name_short=None,\n                    description=None,\n                    default_aggregate='avg',\n                    default_resolution=1000,\n                    unit='number',\n                    disable=False)", 
+            "title": "metric_create"
+        }, 
+        {
+            "location": "/api/metrics/#example", 
+            "text": "import tspapi\n\napi = tspapi.API()\napi.metric_create(name='Foo',\n                  display_name='Foo',\n                  display_name_Short='Foo'\n                  description='A story about foo',\n                  default_aggregate='max',\n                  default_resolution=5000,\n                  unit='percent',\n                  disabled=False)", 
+            "title": "Example"
+        }, 
+        {
+            "location": "/api/metrics/#metric_create_batch", 
+            "text": "metric_create_batch(measurements)", 
+            "title": "metric_create_batch"
+        }, 
+        {
+            "location": "/api/metrics/#example_1", 
+            "text": "", 
+            "title": "Example"
+        }, 
+        {
+            "location": "/api/metrics/#metric_delete", 
+            "text": "", 
+            "title": "metric_delete"
+        }, 
+        {
+            "location": "/api/metrics/#example_2", 
+            "text": "", 
+            "title": "Example"
+        }, 
+        {
+            "location": "/api/metrics/#metric_get", 
+            "text": "", 
+            "title": "metric_get"
+        }, 
+        {
+            "location": "/api/metrics/#example_3", 
+            "text": "", 
+            "title": "Example"
+        }, 
+        {
+            "location": "/api/metrics/#example_4", 
+            "text": "", 
+            "title": "Example"
+        }, 
+        {
+            "location": "/api/metrics/#metric_update", 
+            "text": "", 
+            "title": "metric_update"
+        }, 
+        {
+            "location": "/api/metrics/#example_5", 
+            "text": "", 
+            "title": "Example"
+        }, 
+        {
+            "location": "/api/measurements/", 
+            "text": "Measurements\n\n\nmeasurement_create\n\n\nmeasurement_delete\n\n\nmeasurement_create_batch", 
+            "title": "Measurements"
+        }, 
+        {
+            "location": "/api/measurements/#measurements", 
+            "text": "", 
+            "title": "Measurements"
+        }, 
+        {
+            "location": "/api/measurements/#measurement_create", 
+            "text": "", 
+            "title": "measurement_create"
+        }, 
+        {
+            "location": "/api/measurements/#measurement_delete", 
+            "text": "", 
+            "title": "measurement_delete"
+        }, 
+        {
+            "location": "/api/measurements/#measurement_create_batch", 
+            "text": "", 
+            "title": "measurement_create_batch"
+        }
+    ]
+}
