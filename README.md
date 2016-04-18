@@ -11,6 +11,12 @@ Visit [http://boundary.github.io/pulse-api-python](http://boundary.github.io/pul
 
 © Copyright 2005-2016 BMC Software, Inc. Use of this software signifies your acceptance of BMC's Terms of Use, Privacy Policy and Cookie Notice. BMC, BMC Software, the BMC logos, and other BMC marks are trademarks or registered trademarks of BMC Software, Inc. in the U.S. and/or certain other countries.
 
+## Installing
+
+```
+$ pip install tspapi
+```
+
 ## Examples
 
 ### Create a Metric
