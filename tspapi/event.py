@@ -175,7 +175,6 @@ def event_create_handle_results(api_result, context=None):
         result = json.loads(api_result.text)
     return result
 
-
 def event_get_handle_results(api_result, context=None):
     logging.debug("event_get_handle_results")
     events = None
@@ -193,10 +192,13 @@ def event_get_handle_results(api_result, context=None):
             results_key = 'results'
 
         for event in results[results_key]:
-            source = Source.dict_to_source(event['source'])
+            source = None
+            if 'sender' in event:
+                source = Source.dict_to_source(event['source'])
             sender = None
             if 'sender' in event:
                 sender = Source.dict_to_source(event['sender'])
+
             status = None
             if 'status' in event:
                 status = event['status']
