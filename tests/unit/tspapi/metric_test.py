@@ -35,10 +35,11 @@ from api_test_utils import TestUtils
 
 
 class MetricTest(TestCase):
+
     def setUp(self):
         self.api = API()
-
-        self.name = 'red'
+        logging.basicConfig(level=logging.DEBUG)
+        self.name = 'TEST_' + TestUtils.random_string(6)
         self.display_name = 'green'
         self.display_name_short = 'blue'
         self.description = 'magenta'
@@ -58,6 +59,8 @@ class MetricTest(TestCase):
                              is_disabled=self.is_disabled)
 
         self.api.metric_create_batch([self.metric])
+
+        logging.basicConfig(level=logging.INFO)
 
     def tearDown(self):
         self.api.metric_delete(self.metric.name)
@@ -92,7 +95,7 @@ class MetricTest(TestCase):
         :param self:
         :return:
         """
-        expected = ["Metric(name='red', display_name='green', display_name_short='blue',",
+        expected = ["Metric(name='{0}', display_name='green', display_name_short='blue',".format(self.metric.name),
                     " description='magenta', default_aggregate='sum', default_resolution=60000,",
                     " unit='duration', _type='FOOBAR', is_disabled='False')"]
         self.assertEqual("".join(expected), self.metric.__repr__())
@@ -211,12 +214,28 @@ class MetricTest(TestCase):
 
         self.api.metric_delete(name)
 
-    def test_metric_entity_too_large(self):
+    def test_metric_large_display_name(self):
+        """
+        Test to see that we can handle a display name up to 1K characters
+        :return:
+        """
         try:
             name = 'TEST_CREATE' + TestUtils.random_string(6)
             display_name = TestUtils.random_string(1024*1024)
-            metric = self.api.metric_create(name=name,
-                                            display_name=display_name)
+            metric = self.api.metric_create(name=name, display_name=display_name)
+            self.assertTrue(False)
+        except HTTPResponseError as e:
+            self.assertEqual(requests.codes.request_entity_too_large, e.status_code)
+
+    def test_metric_large_short_display_name(self):
+        """
+        Test on the limit of the short display name
+        :return:
+        """
+        try:
+            name = 'TEST_CREATE' + TestUtils.random_string(6)
+            display_name_short = TestUtils.random_string(1024*1024)
+            metric = self.api.metric_create(name=name, display_name_short=display_name_short)
             self.assertTrue(False)
         except HTTPResponseError as e:
             self.assertEqual(requests.codes.request_entity_too_large, e.status_code)

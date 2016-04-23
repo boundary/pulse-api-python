@@ -16,6 +16,9 @@ import requests
 import json
 import logging
 
+log = logging.getLogger(__name__)
+log.addHandler(logging.NullHandler())
+
 
 class Metric(object):
     def __init__(self,
@@ -144,6 +147,7 @@ def metric_batch_get_handle_results(api_result, context=None):
     if api_result.status_code == requests.codes.ok:
         results = json.loads(api_result.text)
         metrics = []
+        log.debug(api_result.text)
         for metric in results['result']:
             metrics.append(Metric(name=metric['name'],
                                   display_name=metric['displayName'],

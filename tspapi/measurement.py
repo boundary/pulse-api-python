@@ -17,6 +17,9 @@ import logging
 import requests
 import json
 
+log = logging.getLogger(__name__)
+log.addHandler(logging.NullHandler())
+
 
 class Measurement(object):
     def __init__(self, metric=None, value=None, source=None, timestamp=None, properties=None):
@@ -76,6 +79,8 @@ class Measurement(object):
 
 
 def serialize_instance(obj):
+    logging.debug(type(obj))
+    logging.debug(obj)
     d = []
     d.append(obj.source)
     d.append(obj.metric)
@@ -93,6 +98,7 @@ def measurement_get_handle_results(api_result, context):
     if api_result.status_code == requests.codes.ok:
         results = json.loads(api_result.text)
         measurements = []
+        log.debug(api_result.text)
         for aggregate in results['result']['aggregates']['key']:
             timestamp = aggregate[0][0]
             for row in aggregate[1]:
