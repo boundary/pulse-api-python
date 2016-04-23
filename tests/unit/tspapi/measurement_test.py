@@ -97,17 +97,17 @@ class MeasurementTest(TestCase):
         value = 0.0
         source = 'API_TEST_SOURCE' + TestUtils.random_string(6)
         properties = {"app_id": "red", "source_type": "blue", "origin": "green"}
-        start_time = int(datetime.now().strftime('%s'))
-        timestamp = start_time
+        start = int(datetime.now().strftime('%s'))
+        timestamp = start
         for i in range(0, 10):
             self.api.measurement_create(metric=metric, value=value, source=source,
                                         timestamp=timestamp, properties=properties)
             timestamp += 1
             value += 0.1
 
-        measurements = self.api.measurement_get(source=source)
+        measurements = self.api.measurement_get(source=source, start=start, aggregate='avg')
         value = 0.0
-        timestamp = start_time
+        timestamp = start
         for measure in measurements:
             self.assertEqual(metric, measure.metric)
             self.assertEqual(value, measure.value)
