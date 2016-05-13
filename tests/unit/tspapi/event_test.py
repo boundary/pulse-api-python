@@ -72,19 +72,21 @@ class RawEventTest(TestCase):
         event_id = random.randrange(1, 1000000000)
         fingerprint_fields = '@title'
         id = random.randrange(1, 1000000000)
+        event_class = 'CHANGE'
         message = TestUtils.random_string(32)
-        properties={"foo": "bar", "color": "red"}
+        properties = {"foo": "bar", "color": "red"}
         received_at = int(datetime.now().strftime('%s'))
         sender = TestUtils.random_string(10)
         severity = 'INFO'
-        source = TestUtils.random_string(10)
+        source = Source(ref=TestUtils.random_string(10), _type='host', name='foobar')
         status = 'OPEN'
-        tags={"foo": "bar", "color": "red"}
+        tags = {"foo": "bar", "color": "red"}
         tenant_id = random.randrange(1, 10000000)
         title = TestUtils.random_string(16)
         raw_event = RawEvent(
             created_at=created_at,
             event_id=event_id,
+            event_class=event_class,
             fingerprint_fields=fingerprint_fields,
             id=id,
             message=message,
@@ -98,7 +100,23 @@ class RawEventTest(TestCase):
             tenant_id=tenant_id,
             title=title
         )
-        expected = raw_event.__repr__()
+        expected = []
+        expected.append("RawEvent(created_at={0}".format(created_at, event_id))
+        expected.append(", event_id='{0}'".format(event_id))
+        expected.append(", event_class='{0}'".format(event_class))
+        expected.append(", fingerprint_fields='{0}'".format(fingerprint_fields))
+        expected.append(", id='{0}'".format(id))
+        expected.append(", message='{0}'".format(message))
+        expected.append(", properties={0}".format(properties))
+        expected.append(", source='{0}'".format(source))
+        expected.append(", sender='{0}'".format(sender))
+        expected.append(", severity='{0}'".format(severity))
+        expected.append(", status='{0}'".format(status))
+        expected.append(", tags='{0}'".format(tags))
+        expected.append(", tenant_id={0}".format(tenant_id))
+        expected.append(", title='{0}')".format(title))
+
+        expected = "".join(expected)
 
         self.assertEqual(expected, raw_event.__repr__())
 
@@ -124,8 +142,13 @@ class RawEventTest(TestCase):
         properties = {"foo": "bar"}
         self.api.event_create(title=title, fingerprint_fields=['@title'], source=source, properties=properties)
 
-    def test_create_event_with_sender(self):
+    def test_create_event_with_class(self):
+        source = Source(ref='localhost', _type='host', name='bubba')
+        title = 'Event class'
+        event_class = 'MyClass'
+        self.api.event_create(title=title, fingerprint_fields=['@title'], source=source, event_class=event_class)
 
+    def test_create_event_with_sender(self):
         source = Source(ref='localhost', _type='host', name='bubba')
         sender = Sender(ref='localhost', _type='host', name='bubba')
         self.api.event_create(title='Hello World', fingerprint_fields=['@title'], source=source, sender=sender)
