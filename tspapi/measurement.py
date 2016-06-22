@@ -18,7 +18,6 @@ import requests
 import json
 
 log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
 
 
 class Measurement(object):
@@ -79,8 +78,8 @@ class Measurement(object):
 
 
 def serialize_instance(obj):
-    logging.debug(type(obj))
-    logging.debug(obj)
+    log.debug(type(obj))
+    log.debug(obj)
     d = []
     d.append(obj.source)
     d.append(obj.metric)
@@ -91,7 +90,7 @@ def serialize_instance(obj):
 
 
 def measurement_get_handle_results(api_result, context):
-    logging.debug("measurement_get_handle_results")
+    log.debug("measurement_get_handle_results")
     # Only process if we get HTTP result of 200
     measurements = None
     metric = context
