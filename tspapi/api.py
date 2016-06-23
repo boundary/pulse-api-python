@@ -16,14 +16,16 @@
 
 import os
 import json
+import logging
 from tspapi.api_call import ApiCall
-import tspapi.measurement as measurement
+import tspapi.measurement
+from tspapi.measurement import Measurement
 import tspapi.metric
 import tspapi.event
 from tspapi.source import Source
 from tspapi.source import Sender
-from datetime import datetime
-from dateutil import parser
+
+logger = logging.getLogger(__name__)
 
 
 class API(ApiCall):
@@ -47,33 +49,6 @@ class API(ApiCall):
 
         return api_host, email, api_token
 
-    @staticmethod
-    def _parse_time_date(s):
-        """
-        Parse the time indicated by the string or datetime object.
-
-        1) Coerce to int
-        2) Try
-        Attempt to parse the passed in string into a valid datetime.
-        If we get a parse error then assume the string is an epoch time
-        and convert to a datetime.
-        """
-        timestamp = None
-        if isinstance(s, int):
-            timestamp = int(s)
-        elif isinstance(s, str):
-            try:
-                d = parser.parse(s)
-                timestamp = int(d.strftime('%s'))
-            except TypeError:
-                    pass
-        elif isinstance(s, datetime):
-            timestamp = int(s.strftime('%s'))
-        else:
-            raise ValueError('Unable to parse a timestamp')
-
-        return timestamp
-
     def measurement_create(self,
                            metric=None,
                            value=None,
@@ -87,6 +62,7 @@ class API(ApiCall):
         :param value: Value of the measurement
         :param source: Origin of the measurement
         :param timestamp: Time of the occurrence of the measurement
+        :param properties: Properties of the measurement
         :return: None
         """
 
@@ -102,7 +78,7 @@ class API(ApiCall):
         if source is not None:
             payload['source'] = source
         if timestamp is not None:
-            payload['timestamp'] = API._parse_time_date(timestamp)
+            payload['timestamp'] = Measurement.parse_timestamp(timestamp)
         if properties is not None:
             payload['metadata'] = properties
         self._data = json.dumps(payload, sort_keys=True)
@@ -123,7 +99,7 @@ class API(ApiCall):
         :return: None
         """
         self._method = 'POST'
-        self._data = json.dumps(measurements, default=measurement.serialize_instance)
+        self._data = json.dumps(measurements, default=tspapi.measurement.serialize_instance)
         self._headers = {'Content-Type': 'application/json', "Accept": "application/json"}
         self._path = "v1/measurements"
         self._api_call()
@@ -131,7 +107,7 @@ class API(ApiCall):
     def measurement_get(self,
                         source=None,
                         metric='CPU',
-                        start=int(datetime.now().strftime('%s')) - 60,
+                        start=None,
                         end=None,
                         aggregate='avg',
                         sample=1):
@@ -142,10 +118,13 @@ class API(ApiCall):
                                 "aggregate": aggregate,
                                 "sample": sample
                                 }
+
+        if start is None:
+            raise ValueError("start is not value")
         if end is not None:
             self._url_parameters['end'] = end
         self._path = 'v1/measurements/{0}'.format(metric)
-        result = self._api_call(handle_results=measurement.measurement_get_handle_results, context=metric)
+        result = self._api_call(handle_results=tspapi.measurement.measurement_get_handle_results, context=metric)
         return result
 
     def metric_create(self,
@@ -293,6 +272,7 @@ class API(ApiCall):
 
     def event_create(self,
                      created_at=None,
+                     event_class=None,
                      fingerprint_fields=None,
                      message=None,
                      properties=None,
@@ -306,6 +286,7 @@ class API(ApiCall):
         """
         Creates an event in an account
         :param created_at:
+        :param event_class:
         :param fingerprint_fields:
         :param message:
         :param properties:
@@ -330,7 +311,10 @@ class API(ApiCall):
         payload = {}
 
         if created_at is not None:
-            payload['createdAt'] = API._parse_time_date(created_at)
+            payload['createdAt'] = Measurement.parse_timestamp(created_at)
+
+        if event_class is not None:
+            payload['eventClass'] = event_class
 
         if fingerprint_fields is not None:
             payload['fingerprintFields'] = fingerprint_fields

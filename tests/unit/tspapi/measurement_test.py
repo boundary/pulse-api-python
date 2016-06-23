@@ -63,6 +63,13 @@ class MeasurementTest(TestCase):
         timestamp = int(datetime.now().strftime('%s'))
         self.api.measurement_create(metric_id, value, source, timestamp)
 
+    def test_measurement_create_datetime(self):
+        metric_id = 'CPU'
+        value = 0.75
+        source = 'API_TEST_SOURCE'
+        timestamp = datetime.now()
+        self.api.measurement_create(metric_id, value, source, timestamp)
+
     def test_measurement_create_with_properties(self):
         metric_id = 'CPU'
         value = 0.75
@@ -75,6 +82,14 @@ class MeasurementTest(TestCase):
     def test_measurement_create_batch(self):
         measurements = []
         timestamp = int(datetime.now().strftime('%s'))
+        measurements.append(Measurement(metric='CPU', value=0.5, source='red', timestamp=timestamp))
+        measurements.append(Measurement(metric='CPU', value=0.6, source='green', timestamp=timestamp))
+        measurements.append(Measurement(metric='CPU', value=0.7, source='blue', timestamp=timestamp))
+        self.api.measurement_create_batch(measurements)
+
+    def test_measurement_create_batch_datetime(self):
+        measurements = []
+        timestamp = datetime.now()
         measurements.append(Measurement(metric='CPU', value=0.5, source='red', timestamp=timestamp))
         measurements.append(Measurement(metric='CPU', value=0.6, source='green', timestamp=timestamp))
         measurements.append(Measurement(metric='CPU', value=0.7, source='blue', timestamp=timestamp))
@@ -115,3 +130,33 @@ class MeasurementTest(TestCase):
             self.assertEqual(timestamp, measure.timestamp/1000)
             timestamp += 1
             value += 0.1
+
+    def test_parse_timestamp_date_string_yymmddhhmm(self):
+        s = '2016-01-27 3:38AM'
+        d = Measurement.parse_timestamp(s)
+        self.assertEqual(type(d), int)
+        self.assertEqual(d, 1453894680)
+
+    def test_parse_timestamp_date_string_yymmddhhmmss(self):
+        s = '2016-01-27 3:38:25AM'
+        d = Measurement.parse_timestamp(s)
+        self.assertEqual(type(d), int)
+        self.assertEqual(d, 1453894705)
+
+    def test_parse_timestamp_date_string_yymmddHHMM(self):
+        s = '2003-08-16 20:06:01'
+        d = Measurement.parse_timestamp(s)
+        self.assertEqual(type(d), int)
+        self.assertEqual(d, 1061089561)
+
+    def test_parse_timestamp_date_string_yymmddHHMMSS(self):
+        s = '2001-03-27 19:07:32'
+        d = Measurement.parse_timestamp(s)
+        self.assertEqual(type(d), int)
+        self.assertEqual(d, 985748852)
+
+    def test_parse_timestamp_date_string_epoch_time(self):
+        s = '1466704787'
+        d = Measurement.parse_timestamp(s)
+        self.assertEqual(type(d), int)
+        self.assertEqual(d, 1466704787)

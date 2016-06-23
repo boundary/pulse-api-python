@@ -23,6 +23,8 @@ import json
 def event_create_good_response(status_code):
     """
     Determines what status codes represent a good response from an API call.
+    :param status_code: HTTP status code
+    :return: Boolean
     """
     return status_code == requests.codes.created or status_code == requests.codes.accepted
 
@@ -31,6 +33,7 @@ class BaseEvent(object):
     def __init__(self, *args, **kwargs):
         self._created_at = kwargs['created_at'] if 'created_at' in kwargs else None
         self._event_id = kwargs['event_id'] if 'event_id' in kwargs else None
+        self._event_class = kwargs['event_class'] if 'event_class' in kwargs else None
         self._fingerprint_fields = kwargs['fingerprint_fields'] if 'fingerprint_fields' in kwargs else None
         self._id = kwargs['id'] if 'id' in kwargs else None
         self._message = kwargs['message'] if 'message' in kwargs else None
@@ -51,21 +54,22 @@ class BaseEvent(object):
     def __repr__(self):
         return "{0}(created_at={1}" \
                ", event_id='{2}'" \
-               ", fingerprint_fields='{3}'" \
-               ", id='{4}'" \
-               ", message='{5}'" \
-               ", properties={6}" \
-               ", {7}" \
-               ", sender='{8}'" \
-               ", severity='{9}'" \
-               ", status='{10}'" \
-               ", tags='{11}'" \
-               ", tenant_id={12}" \
-               ", title={13}" \
-               ")".format(
+               ", event_class='{3}'" \
+               ", fingerprint_fields='{4}'" \
+               ", id='{5}'" \
+               ", message='{6}'" \
+               ", properties={7}" \
+               ", source='{8}'" \
+               ", sender='{9}'" \
+               ", severity='{10}'" \
+               ", status='{11}'" \
+               ", tags='{12}'" \
+               ", tenant_id={13}" \
+               ", title='{14}')".format(
                 self.__class__.__name__,
                 self._created_at,
                 self._event_id,
+                self._event_class,
                 self._fingerprint_fields,
                 self._id,
                 self._message,
@@ -81,6 +85,10 @@ class BaseEvent(object):
     @property
     def created_at(self):
         return self._created_at
+
+    @property
+    def event_class(self):
+        return self._event_class
 
     @property
     def event_id(self):
@@ -155,7 +163,6 @@ class Event(BaseEvent):
         return self._times_seen
 
 
-
 def serialize_instance(obj):
     d = {}
     if obj.created_at is not None:
@@ -170,10 +177,11 @@ def serialize_instance(obj):
 def event_create_handle_results(api_result, context=None):
     # Only process if we get HTTP result of 200
     result = None
-    if (api_result.status_code == requests.codes.created or
-        api_result.status_code == requests.codes.accepted) and len(api_result.text) > 0:
+    if (api_result.status_code == requests.codes.created or api_result.status_code == requests.codes.accepted)\
+            and len(api_result.text) > 0:
         result = json.loads(api_result.text)
     return result
+
 
 def event_get_handle_results(api_result, context=None):
     logging.debug("event_get_handle_results")
@@ -192,12 +200,20 @@ def event_get_handle_results(api_result, context=None):
             results_key = 'results'
 
         for event in results[results_key]:
-            source = None
             if 'sender' in event:
                 source = Source.dict_to_source(event['source'])
-            sender = None
+            else:
+                source = None
+
             if 'sender' in event:
                 sender = Source.dict_to_source(event['sender'])
+            else:
+                sender = None
+
+            if 'event_class' in event:
+                event_class = event['event_class']
+            else:
+                event_class = None
 
             status = None
             if 'status' in event:
@@ -208,7 +224,8 @@ def event_get_handle_results(api_result, context=None):
             severity = None
             if 'severity' in event:
                 severity = event['severity']
-            events.append(Event(fingerprint_fields=event['fingerprintFields'],
+            events.append(Event(event_class=event_class,
+                                fingerprint_fields=event['fingerprintFields'],
                                 first_seen_at=event['firstSeenAt'],
                                 id=event['id'],
                                 last_seen_at=event['lastSeenAt'],

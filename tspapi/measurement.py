@@ -16,9 +16,10 @@
 import logging
 import requests
 import json
+from dateutil import parser
+from datetime import datetime
 
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
 
 
 class Measurement(object):
@@ -35,7 +36,8 @@ class Measurement(object):
         self.properties = properties
 
     def __repr__(self):
-        return "Measurement(metric='{0}', value={1}, source='{2}', timestamp={3})".format(self.metric, self.value, self.source, self.timestamp)
+        return "Measurement(metric='{0}', value={1}, source='{2}', timestamp={3}, properties={4})".format(
+            self._metric, self._value, self._source, self._timestamp, self._properties)
 
     @property
     def metric(self):
@@ -67,7 +69,8 @@ class Measurement(object):
 
     @timestamp.setter
     def timestamp(self, timestamp):
-        self._timestamp = timestamp
+        if timestamp is not None:
+            self._timestamp = Measurement.parse_timestamp(timestamp)
 
     @property
     def properties(self):
@@ -77,10 +80,37 @@ class Measurement(object):
     def properties(self, properties):
         self._properties = properties
 
+    @staticmethod
+    def parse_timestamp(s):
+        """
+        Parse the time indicated by the integer, string or datetime object.
+
+        1) Coerce to int
+        2) if a string try to convert to int
+        3) If a string try to parse using the python datetime utilities package
+        """
+        timestamp = None
+        if isinstance(s, int):
+            timestamp = s
+        elif isinstance(s, str):
+            try:
+                timestamp = int(s)
+            except ValueError:
+                try:
+                    d = parser.parse(s)
+                    timestamp = int(d.strftime('%s'))
+                except TypeError:
+                    pass
+        elif isinstance(s, datetime):
+            timestamp = int(s.strftime('%s'))
+        else:
+            raise ValueError('Unable to parse a timestamp')
+
+        return timestamp
 
 def serialize_instance(obj):
-    logging.debug(type(obj))
-    logging.debug(obj)
+    logger.debug(type(obj))
+    logger.debug(obj)
     d = []
     d.append(obj.source)
     d.append(obj.metric)
@@ -91,14 +121,13 @@ def serialize_instance(obj):
 
 
 def measurement_get_handle_results(api_result, context):
-    logging.debug("measurement_get_handle_results")
     # Only process if we get HTTP result of 200
     measurements = None
     metric = context
     if api_result.status_code == requests.codes.ok:
         results = json.loads(api_result.text)
         measurements = []
-        log.debug(api_result.text)
+        logger.debug(api_result.text)
         for aggregate in results['result']['aggregates']['key']:
             timestamp = aggregate[0][0]
             for row in aggregate[1]:

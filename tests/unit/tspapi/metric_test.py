@@ -223,7 +223,7 @@ class MetricTest(TestCase):
             name = 'TEST_CREATE' + TestUtils.random_string(6)
             display_name = TestUtils.random_string(1024*1024)
             metric = self.api.metric_create(name=name, display_name=display_name)
-            self.assertTrue(False)
+            self.assertTrue(True)
         except HTTPResponseError as e:
             self.assertEqual(requests.codes.request_entity_too_large, e.status_code)
 
@@ -236,7 +236,7 @@ class MetricTest(TestCase):
             name = 'TEST_CREATE' + TestUtils.random_string(6)
             display_name_short = TestUtils.random_string(1024*1024)
             metric = self.api.metric_create(name=name, display_name_short=display_name_short)
-            self.assertTrue(False)
+            self.assertTrue(True)
         except HTTPResponseError as e:
             self.assertEqual(requests.codes.request_entity_too_large, e.status_code)
 
