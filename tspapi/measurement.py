@@ -16,6 +16,8 @@
 import logging
 import requests
 import json
+from dateutil import parser
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -67,7 +69,8 @@ class Measurement(object):
 
     @timestamp.setter
     def timestamp(self, timestamp):
-        self._timestamp = timestamp
+        if timestamp is not None:
+            self._timestamp = Measurement.parse_timestamp(timestamp)
 
     @property
     def properties(self):
@@ -77,6 +80,33 @@ class Measurement(object):
     def properties(self, properties):
         self._properties = properties
 
+    @staticmethod
+    def parse_timestamp(s):
+        """
+        Parse the time indicated by the integer, string or datetime object.
+
+        1) Coerce to int
+        2) if a string try to convert to int
+        3) If a string try to parse using the python datetime utilities package
+        """
+        timestamp = None
+        if isinstance(s, int):
+            timestamp = s
+        elif isinstance(s, str):
+            try:
+                timestamp = int(s)
+            except ValueError:
+                try:
+                    d = parser.parse(s)
+                    timestamp = int(d.strftime('%s'))
+                except TypeError:
+                    pass
+        elif isinstance(s, datetime):
+            timestamp = int(s.strftime('%s'))
+        else:
+            raise ValueError('Unable to parse a timestamp')
+
+        return timestamp
 
 def serialize_instance(obj):
     logger.debug(type(obj))

@@ -18,6 +18,7 @@
 from tspapi import API
 from tspapi import Source
 from tspapi import Sender
+from tspapi import Measurement
 import tspapi.event
 from unittest import TestCase
 from tspapi import RawEvent
@@ -190,36 +191,36 @@ class RawEventTest(TestCase):
     def test_parse_date_datetime(self):
         d = datetime.now()
         expected = int(d.strftime('%s'))
-        timestamp = API._parse_time_date(d)
+        timestamp = Measurement.parse_timestamp(d)
         self.assertEqual(expected, timestamp)
 
     def test_parse_date_epoch(self):
         expected = int(datetime.now().strftime('%s'))
-        timestamp = API._parse_time_date(expected)
+        timestamp = Measurement.parse_timestamp(expected)
         self.assertEqual(expected, timestamp)
 
     def test_parse_date_ymd(self):
         s = '2015-06-30'
-        timestamp = API._parse_time_date(s)
+        timestamp = Measurement.parse_timestamp(s)
         expected = int(datetime(2015, 6, 30).strftime('%s'))
         self.assertEqual(expected, timestamp)
 
     def test_parse_date_ymd_hms24(self):
         s = '2014-06-30 14:27:16'
-        timestamp = API._parse_time_date(s)
+        timestamp = Measurement.parse_timestamp(s)
         expected = int(datetime(2014, 6, 30, 14, 27, 16).strftime('%s'))
         self.assertEqual(expected, timestamp)
 
     def test_parse_date_ymd_hms(self):
         s = '2014-06-30 02:27:16PM'
-        timestamp = API._parse_time_date(s)
+        timestamp = Measurement.parse_timestamp(s)
         expected = int(datetime(2014, 6, 30, 14, 27, 16).strftime('%s'))
         self.assertEqual(expected, timestamp)
 
     def test_parse_date_bad_date_format(self):
         try:
             s = 'foobar'
-            timestamp = API._parse_time_date(s)
+            timestamp = Measurement.parse_timestamp(s)
             self.assertTrue(False)
         except ValueError:
             pass

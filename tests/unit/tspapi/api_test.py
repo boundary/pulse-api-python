@@ -21,34 +21,8 @@ from datetime import datetime
 
 
 class ApiTest(TestCase):
+    pass
 
-    def test_parse_timestamp_date_string_yymmddhhmm(self):
-        s = '2016-01-27 3:38AM'
-        d = API._parse_time_date(s)
-        self.assertEqual(type(d), int)
-        self.assertEqual(d, 1453894680)
 
-    def test_parse_timestamp_date_string_yymmddhhmmss(self):
-        s = '2016-01-27 3:38:25AM'
-        d = API._parse_time_date(s)
-        self.assertEqual(type(d), int)
-        self.assertEqual(d, 1453894705)
 
-    def test_parse_timestamp_date_string_yymmddHHMM(self):
-        s = '2003-08-16 20:06:01'
-        d = API._parse_time_date(s)
-        self.assertEqual(type(d), int)
-        self.assertEqual(d, 1061089561)
-
-    def test_parse_timestamp_date_string_yymmddHHMMSS(self):
-        s = '2001-03-27 19:07:32'
-        d = API._parse_time_date(s)
-        self.assertEqual(type(d), int)
-        self.assertEqual(d, 985748852)
-
-    def test_parse_timestamp_date_string_epoch_time(self):
-        s = '1466704787'
-        d = API._parse_time_date(s)
-        self.assertEqual(type(d), int)
-        self.assertEqual(d, 1466704787)
 
