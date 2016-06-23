@@ -21,6 +21,8 @@ import sys
 from tspapi import HTTPResponseError
 import six.moves.urllib.parse as urllib
 
+logger = logging.getLogger(__name__)
+
 
 def _good_response(status_code):
     """
@@ -117,21 +119,21 @@ class ApiCall(object):
 
         self._url = self._form_url()
         if self._headers is not None:
-            logging.debug(self._headers)
+            logger.debug(self._headers)
         if self._data is not None:
-            logging.debug(self._data)
+            logger.debug(self._data)
         if len(self._get_url_parameters()) > 0:
-            logging.debug(self._get_url_parameters())
+            logger.debug(self._get_url_parameters())
 
         result = self._methods[self._method]()
 
         if not good_response(result.status_code):
-            logging.error(self._url)
-            logging.error(self._method)
-            logging.error(self._headers)
+            logger.error(self._url)
+            logger.error(self._method)
+            logger.error(self._headers)
             if self._data is not None:
-                logging.error(self._data)
-            logging.error(result)
+                logger.error(self._data)
+            logger.error(result)
             raise HTTPResponseError(result.status_code, result.text)
         self._api_result = result
 
