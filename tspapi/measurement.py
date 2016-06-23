@@ -79,8 +79,8 @@ class Measurement(object):
 
 
 def serialize_instance(obj):
-    log.debug(type(obj))
-    log.debug(obj)
+    logger.debug(type(obj))
+    logger.debug(obj)
     d = []
     d.append(obj.source)
     d.append(obj.metric)
@@ -91,14 +91,13 @@ def serialize_instance(obj):
 
 
 def measurement_get_handle_results(api_result, context):
-    log.debug("measurement_get_handle_results")
     # Only process if we get HTTP result of 200
     measurements = None
     metric = context
     if api_result.status_code == requests.codes.ok:
         results = json.loads(api_result.text)
         measurements = []
-        log.debug(api_result.text)
+        logger.debug(api_result.text)
         for aggregate in results['result']['aggregates']['key']:
             timestamp = aggregate[0][0]
             for row in aggregate[1]:
