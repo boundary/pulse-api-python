@@ -16,6 +16,7 @@
 
 import os
 import json
+import logging
 from tspapi.api_call import ApiCall
 import tspapi.measurement as measurement
 import tspapi.metric
@@ -24,6 +25,8 @@ from tspapi.source import Source
 from tspapi.source import Sender
 from datetime import datetime
 from dateutil import parser
+
+logger = logging.getLogger(__name__)
 
 
 class API(ApiCall):
@@ -63,9 +66,12 @@ class API(ApiCall):
             timestamp = int(s)
         elif isinstance(s, str):
             try:
-                d = parser.parse(s)
-                timestamp = int(d.strftime('%s'))
-            except TypeError:
+                timestamp = int(s)
+            except ValueError:
+                try:
+                    d = parser.parse(s)
+                    timestamp = int(d.strftime('%s'))
+                except TypeError:
                     pass
         elif isinstance(s, datetime):
             timestamp = int(s.strftime('%s'))
@@ -87,6 +93,7 @@ class API(ApiCall):
         :param value: Value of the measurement
         :param source: Origin of the measurement
         :param timestamp: Time of the occurrence of the measurement
+        :param properties: Properties of the measurement
         :return: None
         """
 
@@ -131,7 +138,7 @@ class API(ApiCall):
     def measurement_get(self,
                         source=None,
                         metric='CPU',
-                        start=int(datetime.now().strftime('%s')) - 60,
+                        start=None,
                         end=None,
                         aggregate='avg',
                         sample=1):
@@ -142,6 +149,9 @@ class API(ApiCall):
                                 "aggregate": aggregate,
                                 "sample": sample
                                 }
+
+        if start is None:
+            raise ValueError("start is not value")
         if end is not None:
             self._url_parameters['end'] = end
         self._path = 'v1/measurements/{0}'.format(metric)
@@ -293,6 +303,7 @@ class API(ApiCall):
 
     def event_create(self,
                      created_at=None,
+                     event_class=None,
                      fingerprint_fields=None,
                      message=None,
                      properties=None,
@@ -306,6 +317,7 @@ class API(ApiCall):
         """
         Creates an event in an account
         :param created_at:
+        :param event_class:
         :param fingerprint_fields:
         :param message:
         :param properties:
@@ -331,6 +343,9 @@ class API(ApiCall):
 
         if created_at is not None:
             payload['createdAt'] = API._parse_time_date(created_at)
+
+        if event_class is not None:
+            payload['eventClass'] = event_class
 
         if fingerprint_fields is not None:
             payload['fingerprintFields'] = fingerprint_fields
