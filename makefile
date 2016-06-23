@@ -1,5 +1,5 @@
 TARGET=tspapi
-VERSION=0.3.4
+VERSION=0.3.5
 PACKAGE=tspapi
 TAR_FILE=dist/$(PACKAGE)-$(VERSION).tar.gz
 
