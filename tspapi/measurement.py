@@ -17,7 +17,7 @@ import logging
 import requests
 import json
 
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class Measurement(object):
@@ -34,7 +34,8 @@ class Measurement(object):
         self.properties = properties
 
     def __repr__(self):
-        return "Measurement(metric='{0}', value={1}, source='{2}', timestamp={3})".format(self.metric, self.value, self.source, self.timestamp)
+        return "Measurement(metric='{0}', value={1}, source='{2}', timestamp={3}, properties={4})".format(
+            self._metric, self._value, self._source, self._timestamp, self._properties)
 
     @property
     def metric(self):
