@@ -351,6 +351,9 @@ class MetricTest(TestCase):
 
         self.assertEqual(4, len(metrics))
 
+    def test_metric_create_batch_from_file(self):
+        self.api.metric_create_batch(path="tests/unit/tspapi/metric_batch.json")
+
     def test_metric_get(self):
         metrics = self.api.metric_get()
         self.assertIsNotNone(metrics)

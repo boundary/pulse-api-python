@@ -182,14 +182,18 @@ class API(ApiCall):
         result = self._api_call(handle_results=tspapi.metric.metric_get_handle_results)
         return result
 
-    def metric_create_batch(self, metrics):
+    def metric_create_batch(self, metrics=None, path=None):
         """
         Creates multiple metric definitions
         :param metrics:
         :return:
         """
         self._method = 'POST'
-        self._data = json.dumps(metrics, default=tspapi.metric.serialize_instance)
+        if path is not None:
+            with open(path, "r") as f:
+                self._data = f.read()
+        else:
+            self._data = json.dumps(metrics, default=tspapi.metric.serialize_instance)
         self._headers = {'Content-Type': 'application/json', "Accept": "application/json"}
         self._path = "v1/batch/metrics"
         result = self._api_call(handle_results=tspapi.metric.metric_batch_get_handle_results)

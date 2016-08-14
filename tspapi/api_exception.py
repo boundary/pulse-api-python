@@ -14,12 +14,14 @@
 # limitations under the License.
 #
 
-
+import logging
 """
 Base exception class for pulse exceptions
 """
 
 _product_name = 'TrueSight Pulse'
+
+logger = logging.getLogger(__name__)
 
 
 class Error(Exception):
