@@ -12,12 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import logging
 from pprint import pprint
 from tspapi import Source
 from tspapi import Sender
 import requests
 import json
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def event_create_good_response(status_code):

@@ -13,23 +13,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-from requests.structures import LookupDict
+import sys
 import logging
 
 logger = logging.getLogger(__name__)
 
-_aggregates = {
+def main(args=None):
+    """The main routine."""
+    if args is None:
+        args = sys.argv[1:]
 
-    'avg': ('AVG',),
-    'min': ('MIN',),
-    'max': ('MAX',),
-    'sum': ('SUM',),
-}
+    print("This is the main routine.")
+    print("It should do something interesting.")
 
-aggregates = LookupDict(name='aggregates')
+    # Do argument parsing here (eg. with argparse) and anything else
+    # you want your project to do.
 
-for code, titles in _aggregates.items():
-    for title in titles:
-        setattr(aggregates, title, code)
-        if not title.startswith('\\'):
-            setattr(aggregates, title.upper(), code)
+if __name__ == "__main__":
+    main()

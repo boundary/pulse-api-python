@@ -17,8 +17,6 @@ import json
 import logging
 
 log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
-
 
 class Metric(object):
     def __init__(self,
@@ -149,14 +147,20 @@ def metric_batch_get_handle_results(api_result, context=None):
         metrics = []
         log.debug(api_result.text)
         for metric in results['result']:
+            default_resolution = None
+            if 'defaultResolutionMS' in metric:
+                default_resolution = metric['defaultResolutionMS']
+            is_disabled = None
+            if 'isDisabled' in metric:
+                is_disabled = metric['isDisabled']
             metrics.append(Metric(name=metric['name'],
                                   display_name=metric['displayName'],
                                   display_name_short=metric['displayNameShort'],
                                   description=metric['description'],
                                   default_aggregate=metric['defaultAggregate'],
-                                  default_resolution=metric['defaultResolutionMS'],
+                                  default_resolution=default_resolution,
                                   unit=metric['unit'],
                                   _type=metric['type'] if 'type' in metric else None,
-                                  is_disabled=metric['isDisabled']))
+                                  is_disabled=is_disabled))
 
     return metrics

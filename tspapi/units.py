@@ -14,6 +14,8 @@
 # limitations under the License.
 #
 from requests.structures import LookupDict
+import logging
+logger = logging.getLogger(__name__)
 
 _units = {
 
