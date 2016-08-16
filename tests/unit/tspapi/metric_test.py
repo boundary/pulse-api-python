@@ -353,6 +353,8 @@ class MetricTest(TestCase):
 
     def test_metric_create_batch_from_file(self):
         self.api.metric_create_batch(path="tests/unit/tspapi/metric_batch.json")
+        self.api.metric_delete('TEST_MY_COOL_METRIC_31')
+        self.api.metric_delete('TEST_MY_COOL_METRIC_32')
 
     def test_metric_get(self):
         metrics = self.api.metric_get()
